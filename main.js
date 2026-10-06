@@ -13,3 +13,9 @@ document.querySelectorAll(".video[data-video-id]").forEach((box) => {
     box.replaceChildren(iframe);
   });
 });
+
+// The hero's reconciliation loop animates with SMIL, which CSS media queries
+// can't stop: pause it for visitors who asked for reduced motion.
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  document.querySelectorAll(".hero-visual svg").forEach((svg) => svg.pauseAnimations());
+}

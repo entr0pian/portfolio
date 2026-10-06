@@ -3,10 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tolis Gerodimos · Platform Engineering</title>
-  <meta name="description" content="An Internal Developer Platform on Kubernetes: one Backstage request becomes a scaffolded repository, a GitOps deployment and an observable running service.">
-  <meta property="og:title" content="Tolis Gerodimos · Platform Engineering">
-  <meta property="og:description" content="One developer action, a complete running service. Backstage → GitHub → GitOps → Kubernetes.">
+  <title>Apostolos Gerodimos · Platform Engineering</title>
+  <meta name="description" content="A Kubernetes-native Internal Developer Platform: declarative APIs, custom controllers and GitOps, turning developer intent into running software and infrastructure.">
+  <meta property="og:title" content="Apostolos Gerodimos · Platform Engineering">
+  <meta property="og:description" content="Kubernetes as the API. Git as the source of truth. A Kubernetes-native Internal Developer Platform built around custom controllers and GitOps.">
   <meta property="og:image" content="https://gerodimos.dev/assets/onboard-a-service.jpg">
   <meta property="og:url" content="https://gerodimos.dev/">
   <meta name="twitter:card" content="summary_large_image">
@@ -21,7 +21,7 @@
         <span>gerodimos<span class="muted">.dev</span></span>
       </a>
       <nav aria-label="Sections">
-        <a href="#demo">Demo</a>
+        <a href="#demo">Golden paths</a>
         <a href="#architecture">Architecture</a>
         <a href="#decisions">Decisions</a>
         <a href="#code">Code</a>
@@ -31,33 +31,29 @@
 
   <main id="top">
     <!-- Hero -->
-    <section class="hero wrap">
-      <p class="eyebrow">Platform engineering portfolio</p>
-      <h1>I build internal developer platforms that turn <span class="grad">intent</span> into <span class="grad">running services</span>.</h1>
-      <p class="lede">
-        Hi, I'm Tolis Gerodimos. This site showcases an Internal Developer Platform I designed and built on
-        Kubernetes: a developer fills in one form in Backstage, and the platform creates the repository,
-        scaffolds it, builds it, deploys it through GitOps and wires it into monitoring, with no tickets
-        and no hand-written infrastructure.
-      </p>
-      <div class="cta">
-        <a class="btn primary" href="#demo">Watch the demo</a>
-        <a class="btn" href="https://github.com/entr0pian/platform-architecture">Read the architecture</a>
-      </div>
-      <ul class="facts" aria-label="Platform at a glance">
-        <li><strong>1</strong><span>form to a running service</span></li>
-        <li><strong>3</strong><span>EKS clusters: dev, prod, management</span></li>
-        <li><strong>3</strong><span>Go operators (Kubebuilder) running it</span></li>
-        <li><strong>3</strong><span>golden paths in Backstage</span></li>
-      </ul>
-    </section>
+    <section class="hero"><div class="wrap hero-grid">
+  <div class="hero-copy">
+    <p class="eyebrow">Internal Developer Platform</p>
+    <h1>Kubernetes as the API.<br><span class="grad">Git as the source of&nbsp;truth.</span></h1>
+    <p class="lede">A Kubernetes-native developer platform built around declarative APIs, custom controllers and
+      GitOps workflows, turning developer intent into running software and infrastructure.</p>
+    <div class="cta">
+      <a class="btn primary" href="#architecture">Explore architecture</a>
+      <a class="btn" href="#demo">Watch golden paths</a>
+      <a class="link-cta" href="https://github.com/entr0pian">View source →</a>
+    </div>
+    <p class="byline">Designed and built by <strong>Apostolos Gerodimos</strong> · Platform / DevOps Engineer</p>
+    <ul class="tech-row" aria-label="Built with"><li>Kubernetes</li><li>Go</li><li>Argo CD</li><li>Backstage</li><li>Crossplane</li><li>AWS</li></ul>
+  </div>
+  <figure class="visual hero-visual"><svg viewBox="0 0 520 470" role="img" aria-labelledby="a-t"><title id="a-t">The reconciliation loop: developer intent enters Git; Argo CD syncs it into the Kubernetes platform API; controllers reconcile it and commit desired state back to Git; Argo CD delivers the running services.</title><defs><linearGradient id="v-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c7de"/></linearGradient><marker id="v-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker><marker id="v-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker></defs><path class="v-edge-hi" d="M349.5,86.4 A160,160 0 0 1 415.9,183.0" marker-end="url(#v-arrow-hi)"/><text class="v-label" x="416.6" y="115.4" text-anchor="middle">sync</text><path class="v-edge-hi" d="M415.9,255.0 A160,160 0 0 1 349.5,351.6" marker-end="url(#v-arrow-hi)"/><text class="v-label" x="416.6" y="330.6" text-anchor="middle">apply</text><path class="v-edge-hi" d="M170.5,351.6 A160,160 0 0 1 104.1,255.0" marker-end="url(#v-arrow-hi)"/><text class="v-label" x="103.4" y="330.6" text-anchor="middle">reconcile</text><path class="v-edge-hi" d="M104.1,183.0 A160,160 0 0 1 170.5,86.4" marker-end="url(#v-arrow-hi)"/><text class="v-label" x="103.4" y="115.4" text-anchor="middle">commit</text><circle r="5" class="v-pulse"><animateMotion dur="7s" repeatCount="indefinite" path="M260,59 A160,160 0 0 1 420,219 A160,160 0 0 1 260,379 A160,160 0 0 1 100,219 A160,160 0 0 1 260,59"/></circle><rect class="v-node-hi" x="175" y="30" width="170" height="58" rx="12"/><text class="v-t" x="260.0" y="56.0" text-anchor="middle">Git</text><text class="v-s" x="260.0" y="74.0" text-anchor="middle">desired state</text><rect class="v-node" x="330" y="190" width="170" height="58" rx="12"/><text class="v-t" x="415.0" y="216.0" text-anchor="middle">Argo CD</text><text class="v-s" x="415.0" y="234.0" text-anchor="middle">GitOps sync</text><rect class="v-node" x="175" y="350" width="170" height="58" rx="12"/><text class="v-t" x="260.0" y="376.0" text-anchor="middle">Kubernetes API</text><text class="v-s" x="260.0" y="394.0" text-anchor="middle">platform resources</text><rect class="v-node" x="20" y="190" width="170" height="58" rx="12"/><text class="v-t" x="105.0" y="216.0" text-anchor="middle">Controllers</text><text class="v-s" x="105.0" y="234.0" text-anchor="middle">Go operators</text><text class="v-s" x="260" y="215" text-anchor="middle">continuous</text><text class="v-s" x="260" y="233" text-anchor="middle">reconciliation</text><rect class="v-node" x="8" y="8" width="128" height="34" rx="17"/><text class="v-s" x="72" y="29" text-anchor="middle">developer intent</text><path class="v-edge" d="M136,25 C160,25 150,59 173,59" marker-end="url(#v-arrow)"/><path class="v-edge" d="M482,248 V418" marker-end="url(#v-arrow)"/><rect class="v-node" x="372" y="420" width="140" height="34" rx="17"/><text class="v-s" x="442" y="441" text-anchor="middle">running services</text></svg></figure>
+</div></section>
 
     <!-- Demo -->
     <section id="demo" class="section wrap">
       <div class="section-head">
-        <p class="eyebrow">Golden path · Onboard a service</p>
-        <h2>From developer request to running workload</h2>
-        <p>A real run of the platform, cut to 97 seconds. Everything after the form is automation.</p>
+        <p class="eyebrow">Golden paths</p>
+        <h2>See the platform in action</h2>
+        <p>The first golden path, <strong>Onboard a Service</strong>: a real run, cut to 97 seconds. The developer fills in one form; everything after it is the platform.</p>
       </div>
 
       <div class="video" data-video-id="oI3ZWVAUfhw">
@@ -199,7 +195,7 @@
 
   <footer class="site-footer">
     <div class="wrap footer-inner">
-      <p>Tolis Gerodimos · Platform engineering</p>
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
       <nav aria-label="Elsewhere">
         <a href="https://github.com/entr0pian">GitHub</a>
         <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
