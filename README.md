@@ -28,7 +28,7 @@ TLS certificate; `.dev` is HSTS-preloaded, so **Enforce HTTPS** must be on.
 
 | Golden path | YouTube |
 |---|---|
-| Onboard a service | [`Nq8XU3YVpOE`](https://youtu.be/Nq8XU3YVpOE) |
+| Onboard a service | [`oI3ZWVAUfhw`](https://youtu.be/oI3ZWVAUfhw) |
 
 Built from `portfolio-video/service-onboarding/build.py` in the workspace. A
 re-cut is a new upload with a new ID: update `data-video-id` and the link in
