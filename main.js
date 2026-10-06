@@ -8,7 +8,7 @@ document.querySelectorAll(".video[data-video-id]").forEach((box) => {
     const iframe = document.createElement("iframe");
     iframe.src = `https://www.youtube-nocookie.com/embed/${box.dataset.videoId}?autoplay=1&rel=0`;
     iframe.title = facade.getAttribute("aria-label") || "Video";
-    iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture; web-share";
+    iframe.allow = "accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture";
     iframe.allowFullscreen = true;
     box.replaceChildren(iframe);
   });
