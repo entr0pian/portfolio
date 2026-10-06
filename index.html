@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tolis Gerodimos · Platform Engineering</title>
+  <meta name="description" content="An Internal Developer Platform on Kubernetes: one Backstage request becomes a scaffolded repository, a GitOps deployment and an observable running service.">
+  <meta property="og:title" content="Tolis Gerodimos · Platform Engineering">
+  <meta property="og:description" content="One developer action, a complete running service. Backstage → GitHub → GitOps → Kubernetes.">
+  <meta property="og:image" content="https://gerodimos.dev/assets/onboard-a-service.jpg">
+  <meta property="og:url" content="https://gerodimos.dev/">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="#top" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="#demo">Demo</a>
+        <a href="#how">How it works</a>
+        <a href="#decisions">Decisions</a>
+        <a href="#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero wrap">
+      <p class="eyebrow">Platform engineering portfolio</p>
+      <h1>I build internal developer platforms that turn <span class="grad">intent</span> into <span class="grad">running services</span>.</h1>
+      <p class="lede">
+        Hi, I'm Tolis Gerodimos. This site showcases an Internal Developer Platform I designed and built on
+        Kubernetes: a developer fills in one form in Backstage, and the platform creates the repository,
+        scaffolds it, builds it, deploys it through GitOps and wires it into monitoring, with no tickets
+        and no hand-written infrastructure.
+      </p>
+      <div class="cta">
+        <a class="btn primary" href="#demo">Watch the 90-second demo</a>
+        <a class="btn" href="https://github.com/entr0pian/platform-architecture">Read the architecture</a>
+      </div>
+      <ul class="facts" aria-label="Platform at a glance">
+        <li><strong>1</strong><span>form to a running service</span></li>
+        <li><strong>3</strong><span>EKS clusters: dev, prod, management</span></li>
+        <li><strong>3</strong><span>Go operators (Kubebuilder) running it</span></li>
+        <li><strong>3</strong><span>golden paths in Backstage</span></li>
+      </ul>
+    </section>
+
+    <!-- Demo -->
+    <section id="demo" class="section wrap">
+      <div class="section-head">
+        <p class="eyebrow">Golden path · Onboard a service</p>
+        <h2>From developer request to running workload</h2>
+        <p>A real run of the platform, cut to 97 seconds. Everything after the form is automation.</p>
+      </div>
+
+      <div class="video" data-video-id="Nq8XU3YVpOE">
+        <a class="video-facade" href="https://youtu.be/Nq8XU3YVpOE" aria-label="Play the Onboard a Service demo">
+          <img src="assets/onboard-a-service.jpg" alt="Golden Path: Onboard a Service — from developer request to running workload" width="1280" height="720" loading="lazy">
+          <span class="play" aria-hidden="true"></span>
+        </a>
+      </div>
+
+      <ol class="steps">
+        <li><span class="n">1</span><div><h3>Define the service</h3><p>Name, owner, scaffold template and version, auto-deploy to dev. That's the whole developer input.</p></div></li>
+        <li><span class="n">2</span><div><h3>The platform takes over</h3><p>Backstage opens a pull request with a <code>Component</code> and its first <code>Release</code>. A human reviews and merges it, like any change.</p></div></li>
+        <li><span class="n">3</span><div><h3>GitOps deploys it</h3><p>Argo CD syncs the merge; Crossplane creates the GitHub repo and its webhook; an operator commits the scaffold; CI builds the image.</p></div></li>
+        <li><span class="n">4</span><div><h3>Healthy and observable</h3><p>The first green build rolls out to dev on its own. Rollout state, metrics and a public HTTPS endpoint appear in the portal.</p></div></li>
+      </ol>
+
+      <div class="more-paths">
+        <div class="path-card"><h3>Add a database</h3><p>A Crossplane-provisioned Postgres for an existing service, with credentials delivered through Secrets Manager.</p><span class="tag">Demo coming soon</span></div>
+        <div class="path-card"><h3>Deploy a version</h3><p>Pick an environment and a built version; Backstage opens the <code>Release</code> pull request and Argo CD rolls it out.</p><span class="tag">Demo coming soon</span></div>
+      </div>
+    </section>
+
+    <!-- How it works -->
+    <section id="how" class="section wrap">
+      <div class="section-head">
+        <p class="eyebrow">How it works</p>
+        <h2>Small developer action, large amount of automation</h2>
+        <p>Every arrow below is automated and running today. Git stays the record of what runs where: automation writes commits, never directly to a cluster.</p>
+      </div>
+
+      <ol class="flow">
+        <li><h3>Backstage</h3><p>Onboard Service template renders the request and opens the PR as a GitHub App bot.</p></li>
+        <li><h3>application-repositories</h3><p>The GitOps repo. A reviewed merge is the only manual step.</p></li>
+        <li><h3>Argo CD</h3><p>ApplicationSets on the management cluster turn files into Applications, push-triggered by webhooks.</p></li>
+        <li><h3>component-operator + Crossplane</h3><p><code>Component</code> owns a <code>GitHubRepository</code>; Crossplane creates the repo and its Argo CD webhook.</p></li>
+        <li><h3>scaffold-operator</h3><p>Renders a versioned <code>platform-scaffolds</code> template into the repo in one commit: Go service, Dockerfile, Helm chart, CI, catalog entry.</p></li>
+        <li><h3>GitHub Actions</h3><p>Tests, builds and pushes the image; chart and image ship from the same commit.</p></li>
+        <li><h3>release-operator</h3><p>Sees the green build and commits that exact version for dev: a revertable Git commit, not a cluster write.</p></li>
+        <li><h3>Kubernetes (EKS)</h3><p>Two replicas behind an ALB with DNS and TLS from external-dns and ACM, a PodDisruptionBudget and a ServiceMonitor.</p></li>
+        <li><h3>Observability</h3><p>Prometheus remote-writes to central Mimir; Grafana and the portal's Metrics tab read one store for every environment.</p></li>
+      </ol>
+    </section>
+
+    <!-- Decisions -->
+    <section id="decisions" class="section wrap">
+      <div class="section-head">
+        <p class="eyebrow">Design decisions</p>
+        <h2>The choices behind it</h2>
+        <p>The full reasoning lives in the <a href="https://github.com/entr0pian/platform-architecture">architecture docs</a>.</p>
+      </div>
+      <div class="grid">
+        <article class="card">
+          <h3>A small API, not a mega-CRD</h3>
+          <p><code>Component</code> is just an identity record. Databases, releases and queues are independent resources that point back to it, so each can evolve on its own instead of turning one CRD into an orchestration engine.</p>
+        </article>
+        <article class="card">
+          <h3>Git is the record of what runs where</h3>
+          <p>Onboarding, deploys and auto-deploys all end as commits in one GitOps repo. Every change is reviewable and revertable, and the cluster can be rebuilt from Git.</p>
+        </article>
+        <article class="card">
+          <h3>Bots, not personal tokens</h3>
+          <p>The portal, the scaffolder and the release automation each commit as their own GitHub App with short-lived, narrowly scoped tokens; CI reaches AWS through OIDC with no stored secrets.</p>
+        </article>
+        <article class="card">
+          <h3>Disposable clusters, durable state</h3>
+          <p>The EKS clusters are created and destroyed daily to keep cost down. DNS, certificates, secrets and Terraform state live outside them, so a fresh cluster converges from Git in minutes.</p>
+        </article>
+        <article class="card">
+          <h3>Safe to show the public</h3>
+          <p>Guests browse the live portal read-only. Metrics come from fixed server-side queries, so a visitor can't send PromQL; logs and templates are owner-only.</p>
+        </article>
+        <article class="card">
+          <h3>Observability by default</h3>
+          <p>Every scaffolded service exposes the same metrics and identity labels, so one dashboard and one portal tab cover every service and environment with no per-service setup.</p>
+        </article>
+      </div>
+
+      <ul class="stack" aria-label="Technology">
+        <li>Kubernetes (EKS)</li><li>Argo CD</li><li>Crossplane</li><li>Backstage</li><li>Go · Kubebuilder</li>
+        <li>Helm</li><li>Terraform</li><li>GitHub Actions · OIDC</li><li>External Secrets</li><li>Prometheus</li>
+        <li>Grafana Mimir</li><li>Grafana</li><li>AWS: Route53 · ACM · ALB · Secrets Manager</li><li>k6</li>
+      </ul>
+    </section>
+
+    <!-- Code -->
+    <section id="code" class="section wrap">
+      <div class="section-head">
+        <p class="eyebrow">Code</p>
+        <h2>Every part is public</h2>
+        <p>Start with the architecture repo; it maps the rest.</p>
+      </div>
+      <div class="repos">
+        <a class="repo featured" href="https://github.com/entr0pian/platform-architecture"><h3>platform-architecture</h3><p>Architecture, resource model and current state of the platform.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/backstage"><h3>backstage</h3><p>The developer portal: golden-path templates, deployments, metrics, guest access.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/component-operator"><h3>component-operator</h3><p>Reconciles <code>Component</code> into its GitHub repository and scaffold request.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/scaffold-operator"><h3>scaffold-operator</h3><p>One-time, versioned repository scaffolding from golden-path templates.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>Turns <code>Release</code> intent into GitOps deployment commits, including auto-deploy.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/platform-scaffolds"><h3>platform-scaffolds</h3><p>The versioned service templates every new repository starts from.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/crossplane-compositions"><h3>crossplane-compositions</h3><p>Infrastructure APIs (GitHub repositories, Postgres) released as OCI packages.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>The GitOps source of truth: what deploys where.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>Bootstraps the Argo CD ApplicationSets on the management cluster.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>Charts for cluster-wide platform resources and supporting infrastructure.</p></a>
+      </div>
+      <p class="note">
+        The live portal is at <a href="https://platform.gerodimos.dev">platform.gerodimos.dev</a> (guest sign-in, read-only).
+        Its cluster only runs while I'm working on it, so it may be offline; the demo above shows it end to end.
+      </p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Tolis Gerodimos · Platform engineering</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+        <!-- TODO: LinkedIn, e-mail and CV links once decided -->
+      </nav>
+    </div>
+  </footer>
+
+  <script src="main.js" defer></script>
+</body>
+</html>
