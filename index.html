@@ -22,7 +22,7 @@
       </a>
       <nav aria-label="Sections">
         <a href="#demo">Demo</a>
-        <a href="#how">How it works</a>
+        <a href="#architecture">Architecture</a>
         <a href="#decisions">Decisions</a>
         <a href="#code">Code</a>
       </nav>
@@ -80,25 +80,54 @@
       </div>
     </section>
 
-    <!-- How it works -->
-    <section id="how" class="section wrap">
+    <!-- Architecture -->
+    <section id="architecture" class="section wrap">
       <div class="section-head">
-        <p class="eyebrow">How it works</p>
-        <h2>Small developer action, large amount of automation</h2>
-        <p>Every arrow below is automated and running today. Git stays the record of what runs where: automation writes commits, never directly to a cluster.</p>
+        <p class="eyebrow">Architecture</p>
+        <h2>The platform at a glance</h2>
+        <p>A developer only ever talks to Backstage. Everything after that is Git, and the automation that reconciles it.</p>
       </div>
 
-      <ol class="flow">
-        <li><h3>Backstage</h3><p>Onboard Service template renders the request and opens the PR as a GitHub App bot.</p></li>
-        <li><h3>application-repositories</h3><p>The GitOps repo. A reviewed merge is the only manual step.</p></li>
-        <li><h3>Argo CD</h3><p>ApplicationSets on the management cluster turn files into Applications, push-triggered by webhooks.</p></li>
-        <li><h3>component-operator + Crossplane</h3><p><code>Component</code> owns a <code>GitHubRepository</code>; Crossplane creates the repo and its Argo CD webhook.</p></li>
-        <li><h3>scaffold-operator</h3><p>Renders a versioned <code>platform-scaffolds</code> template into the repo in one commit: Go service, Dockerfile, Helm chart, CI, catalog entry.</p></li>
-        <li><h3>GitHub Actions</h3><p>Tests, builds and pushes the image; chart and image ship from the same commit.</p></li>
-        <li><h3>release-operator</h3><p>Sees the green build and commits that exact version for dev: a revertable Git commit, not a cluster write.</p></li>
-        <li><h3>Kubernetes (EKS)</h3><p>Two replicas behind an ALB with DNS and TLS from external-dns and ACM, a PodDisruptionBudget and a ServiceMonitor.</p></li>
-        <li><h3>Observability</h3><p>Prometheus remote-writes to central Mimir; Grafana and the portal's Metrics tab read one store for every environment.</p></li>
+      <figure class="diagram">
+        <div class="diagram-scroll">
+          <img src="assets/architecture.svg" width="1200" height="640" loading="lazy"
+               alt="Architecture: Developer to Backstage, which opens a pull request on the GitOps config in GitHub. Argo CD on the management cluster applies it: platform intent to the platform APIs and operators, applications to the dev and prod workload clusters. Operators commit deployment state back to Git and scaffold service repositories; Crossplane creates the repositories and provisions RDS and Secrets Manager on AWS. Metrics and deployment status flow back to Backstage.">
+        </div>
+        <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>Thick arrows are the main path; dashed arrows are feedback.</figcaption>
+      </figure>
+
+      <ol class="read">
+        <li><strong>Git is the system of record.</strong> Golden paths open pull requests; a person merges them. Platform intent (Component, Release, Database) and deployment state live in one GitOps repository.</li>
+        <li><strong>The management cluster runs only the platform.</strong> Argo CD applies Git to it and reaches out to the workload clusters, which run only services. Nothing in a workload cluster can change the platform.</li>
+        <li><strong>Runtime state flows back.</strong> Rollout status, health and metrics from every environment end up in the same portal the request started from.</li>
       </ol>
+
+      <div class="areas">
+        <article class="card">
+          <h3>Developer experience</h3>
+          <p>Backstage templates are the golden paths: a few questions, then a pull request opened as the platform's own GitHub App. The same portal shows each service's versions, rollouts, metrics, logs and dependencies.</p>
+        </article>
+        <article class="card">
+          <h3>Platform APIs &amp; operators</h3>
+          <p><code>Component</code> is an identity; <code>Release</code> and <code>Database</code> point back to it. Three Go operators reconcile them: one creates the repository, one scaffolds it from a versioned template, one turns releases into deployment commits.</p>
+        </article>
+        <article class="card">
+          <h3>GitOps delivery</h3>
+          <p>One Argo CD on the management cluster reads one GitOps repository through four ApplicationSets and deploys to every cluster, matched by an <code>environment</code> label. Webhooks make a merge show up in seconds.</p>
+        </article>
+        <article class="card">
+          <h3>Infrastructure provisioning</h3>
+          <p>Crossplane exposes infrastructure as Kubernetes APIs, shipped as versioned packages: GitHub repositories for every component, and RDS databases whose credentials reach services through Secrets Manager.</p>
+        </article>
+        <article class="card">
+          <h3>Observability</h3>
+          <p>Every scaffolded service exposes metrics with the same identity labels. Each cluster's Prometheus remote-writes to a central Mimir, which Grafana and the portal read, so every service is observable from day one.</p>
+        </article>
+        <a class="card card-link" href="https://github.com/entr0pian/platform-architecture">
+          <h3>Go deeper →</h3>
+          <p>The architecture repository has the resource model, the delivery and secrets design, and the current status of every part.</p>
+        </a>
+      </div>
     </section>
 
     <!-- Decisions -->

@@ -1,0 +1,119 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" role="img" aria-labelledby="arch-title arch-desc" font-family="Ubuntu Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
+  <title id="arch-title">Platform architecture at a glance</title>
+  <desc id="arch-desc">A developer makes a request in Backstage, which opens a pull request on the GitOps configuration in GitHub. Argo CD on the management cluster applies that desired state: platform intent goes to the platform APIs and operators, applications are deployed to the dev and prod workload clusters. The operators commit deployment state back to Git and scaffold application repositories; Crossplane creates the repositories and provisions AWS RDS and Secrets Manager. Metrics flow from the workload clusters to central observability and back to Backstage, together with deployment status from Argo CD.</desc>
+  <style>
+    .g-box { fill: #0f1219; stroke: #2a3040; stroke-width: 1.2; stroke-dasharray: 5 5; }
+    .g-label { fill: #8f86d9; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; }
+    .box { fill: #161a24; stroke: #343b4f; stroke-width: 1.2; }
+    .box-hero { fill: #1b1834; stroke: #7c5cff; stroke-width: 1.5; }
+    .t { fill: #eef0f5; font-size: 16px; font-weight: 600; }
+    .s { fill: #a0a8ba; font-size: 14px; }
+    .e { fill: none; stroke: #66708a; stroke-width: 1.6; }
+    .e-main { fill: none; stroke: url(#arch-grad); stroke-width: 3.4; }
+    .e-back { fill: none; stroke: #22c7de; stroke-width: 1.6; stroke-dasharray: 6 5; }
+    .l { fill: #a0a8ba; font-size: 13px; paint-order: stroke; stroke: #0b0d12; stroke-width: 5px; stroke-linejoin: round; }
+    .l-back { fill: #6fdcec; }
+  </style>
+  <defs>
+    <linearGradient id="arch-grad" x1="80" y1="0" x2="1140" y2="0" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c7de"/>
+    </linearGradient>
+    <marker id="arch-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#66708a"/></marker>
+    <marker id="arch-am" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+    <marker id="arch-ab" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#22c7de"/></marker>
+  </defs>
+
+  <!-- groups -->
+  <rect class="g-box" x="260" y="110" width="200" height="440" rx="14"/>
+  <text class="g-label" x="276" y="132">GITHUB</text>
+  <rect class="g-box" x="540" y="90" width="320" height="480" rx="14"/>
+  <text class="g-label" x="556" y="112">MANAGEMENT CLUSTER</text>
+  <rect class="g-box" x="900" y="110" width="260" height="190" rx="14"/>
+  <text class="g-label" x="916" y="132">WORKLOAD CLUSTERS</text>
+  <rect class="g-box" x="900" y="360" width="260" height="130" rx="14"/>
+  <text class="g-label" x="916" y="382">AWS</text>
+
+  <!-- nodes -->
+  <rect class="box" x="30" y="110" width="100" height="40" rx="20"/>
+  <text class="t" x="80" y="135" text-anchor="middle">Developer</text>
+
+  <rect class="box-hero" x="40" y="240" width="170" height="90" rx="10"/>
+  <text class="t" x="125" y="274" text-anchor="middle">Backstage</text>
+  <text class="s" x="125" y="294" text-anchor="middle">golden paths · catalog</text>
+  <text class="s" x="125" y="312" text-anchor="middle">deployments · metrics</text>
+
+  <rect class="box" x="275" y="150" width="170" height="100" rx="10"/>
+  <text class="t" x="360" y="184" text-anchor="middle">GitOps config</text>
+  <text class="s" x="360" y="205" text-anchor="middle">platform intent</text>
+  <text class="s" x="360" y="223" text-anchor="middle">+ deployment state</text>
+
+  <rect class="box" x="275" y="420" width="170" height="100" rx="10"/>
+  <text class="t" x="360" y="454" text-anchor="middle">Service repos</text>
+  <text class="s" x="360" y="475" text-anchor="middle">source · Helm chart · CI</text>
+  <text class="s" x="360" y="493" text-anchor="middle">one per service</text>
+
+  <rect class="box" x="570" y="172" width="260" height="56" rx="10"/>
+  <text class="t" x="700" y="205" text-anchor="middle">Argo CD</text>
+
+  <rect class="box" x="570" y="270" width="260" height="80" rx="10"/>
+  <text class="t" x="700" y="302" text-anchor="middle">Platform APIs + operators</text>
+  <text class="s" x="700" y="324" text-anchor="middle">Component · Release · Database</text>
+
+  <rect class="box" x="570" y="395" width="260" height="50" rx="10"/>
+  <text class="t" x="700" y="425" text-anchor="middle">Crossplane</text>
+
+  <rect class="box" x="570" y="490" width="260" height="60" rx="10"/>
+  <text class="t" x="700" y="515" text-anchor="middle">Central observability</text>
+  <text class="s" x="700" y="535" text-anchor="middle">Prometheus · Mimir · Grafana</text>
+
+  <rect class="box" x="920" y="150" width="220" height="56" rx="10"/>
+  <text class="t" x="940" y="174">dev</text>
+  <text class="s" x="940" y="194">running services</text>
+  <rect class="box" x="920" y="224" width="220" height="56" rx="10"/>
+  <text class="t" x="940" y="248">prod</text>
+  <text class="s" x="940" y="268">running services</text>
+
+  <rect class="box" x="920" y="410" width="220" height="60" rx="10"/>
+  <text class="t" x="940" y="436">RDS (Postgres)</text>
+  <text class="s" x="940" y="456">Secrets Manager</text>
+
+  <!-- main path -->
+  <path class="e-main" d="M80,150 V238" marker-end="url(#arch-am)"/>
+  <path class="e-main" d="M210,285 C250,285 235,200 273,200" marker-end="url(#arch-am)"/>
+  <path class="e-main" d="M445,200 H568" marker-end="url(#arch-am)"/>
+  <path class="e-main" d="M830,200 C872,200 878,178 918,178" marker-end="url(#arch-am)"/>
+  <path class="e-main" d="M830,200 C872,200 878,252 918,252" marker-end="url(#arch-am)"/>
+
+  <!-- control-plane loop -->
+  <path class="e" d="M700,228 V268" marker-end="url(#arch-a)"/>
+  <path class="e" d="M570,290 H500 V236 H447" marker-end="url(#arch-a)"/>
+  <path class="e" d="M570,322 H515 V440 H447" marker-end="url(#arch-a)"/>
+  <path class="e" d="M700,350 V393" marker-end="url(#arch-a)"/>
+  <path class="e" d="M570,420 H530 V478 H447" marker-end="url(#arch-a)"/>
+  <path class="e" d="M830,420 H918" marker-end="url(#arch-a)"/>
+
+  <!-- feedback -->
+  <path class="e-back" d="M1140,252 H1180 V520 H832" marker-end="url(#arch-ab)"/>
+  <path class="e-back" d="M700,550 V600 H125 V332" marker-end="url(#arch-ab)"/>
+  <path class="e-back" d="M815,172 V60 H175 V238" marker-end="url(#arch-ab)"/>
+
+  <!-- labels -->
+  <text class="l" x="216" y="318">pull request</text>
+  <text class="l" x="507" y="192" text-anchor="middle">desired state</text>
+  <text class="l" x="872" y="168" text-anchor="middle">deploy</text>
+  <text class="l" x="710" y="253">apply intent</text>
+  <text class="l" x="474" y="230" text-anchor="middle">commits</text>
+  <text class="l" x="481" y="434" text-anchor="middle">scaffold</text>
+  <text class="l" x="487" y="497" text-anchor="middle">create repo</text>
+  <text class="l" x="710" y="378">provision</text>
+  <text class="l" x="874" y="412" text-anchor="middle">provision</text>
+  <text class="l l-back" x="1000" y="513" text-anchor="middle">metrics</text>
+  <text class="l l-back" x="400" y="593" text-anchor="middle">metrics · health</text>
+  <text class="l l-back" x="480" y="53" text-anchor="middle">deployment status</text>
+
+  <!-- legend -->
+  <path class="e-main" d="M880,610 H920"/>
+  <text class="s" x="928" y="614">main path</text>
+  <path class="e-back" d="M1020,610 H1060"/>
+  <text class="s" x="1068" y="614">feedback</text>
+</svg>
