@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Service bindings · Apostolos Gerodimos</title>
+  <meta name="description" content="A service asks for a database by name; the platform provisions it, publishes its connection details and mounts them into the pods.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Service bindings</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Service bindings</h1>
+      <p class="lede">A service asks for a database by name. The platform provisions it, publishes where its connection details live, and mounts them into the service's pods. The service never learns where the database came from.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>0</strong><span>credentials in Git or in any resource's status</span></li>
+      <li><strong>1</strong><span>field on a <code>Release</code> binds a database</span></li>
+      <li><strong>Off</strong><span>by default: every service's chart ships the slot switched off</span></li>
+      <li><strong>Files</strong><span>not environment variables: mounted under <code>/bindings</code></span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 400" role="img" aria-labelledby="sb-t">
+                <title id="sb-t">Producer row: a Database resource is provisioned by Crossplane as RDS, and its connection details are pushed to AWS Secrets Manager. The Database publishes only the location. Consumer row: a Release names the Database; release-operator resolves its published location into the service's Helm values; the chart renders an ExternalSecret that pulls the details from Secrets Manager; the pod reads them as files under /bindings/database.</title>
+                <defs>
+                  <marker id="b-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="b-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <text class="v-label" x="20" y="40">PRODUCER · the database</text>
+                <text class="v-label" x="20" y="242">CONSUMER · the service</text>
+
+                <!-- Producer row -->
+                <rect class="v-node" x="20" y="56" width="210" height="84" rx="12"/>
+                <text class="v-t" x="125" y="86" text-anchor="middle">Database</text>
+                <text class="v-s" x="125" y="108" text-anchor="middle">componentRef · dbName · size</text>
+                <text class="v-s" x="125" y="126" text-anchor="middle">platform/environments/dev/</text>
+                <rect class="v-node" x="270" y="56" width="210" height="84" rx="12"/>
+                <text class="v-t" x="375" y="86" text-anchor="middle">Crossplane</text>
+                <text class="v-s" x="375" y="108" text-anchor="middle">RDS · security group · subnets</text>
+                <text class="v-s" x="375" y="126" text-anchor="middle">connection Secret</text>
+                <rect class="v-node-hi" x="520" y="56" width="230" height="84" rx="12"/>
+                <text class="v-t" x="635" y="86" text-anchor="middle">AWS Secrets Manager</text>
+                <text class="v-s mono-s" x="635" y="110" text-anchor="middle">/bindings/dev/databases/</text>
+                <text class="v-s mono-s" x="635" y="128" text-anchor="middle">payments-db</text>
+                <path class="v-edge" d="M232,98 H268" marker-end="url(#b-arrow)"/>
+                <path class="v-edge" d="M482,98 H518" marker-end="url(#b-arrow)"/>
+                <text class="v-label" x="500" y="160" text-anchor="middle">push</text>
+
+                <!-- Consumer row -->
+                <rect class="v-node" x="20" y="258" width="210" height="84" rx="12"/>
+                <text class="v-t" x="125" y="288" text-anchor="middle">Release</text>
+                <text class="v-s" x="125" y="310" text-anchor="middle">bindings.database.ref:</text>
+                <text class="v-s" x="125" y="328" text-anchor="middle">payments-db</text>
+                <rect class="v-node" x="270" y="258" width="210" height="84" rx="12"/>
+                <text class="v-t" x="375" y="288" text-anchor="middle">release-operator</text>
+                <text class="v-s" x="375" y="310" text-anchor="middle">writes generic Helm values:</text>
+                <text class="v-s" x="375" y="328" text-anchor="middle">type · provider · remoteRef</text>
+                <rect class="v-node" x="520" y="258" width="230" height="84" rx="12"/>
+                <text class="v-t" x="635" y="288" text-anchor="middle">ExternalSecret</text>
+                <text class="v-s" x="635" y="310" text-anchor="middle">rendered by the service's chart</text>
+                <text class="v-s" x="635" y="328" text-anchor="middle">only when the slot is on</text>
+                <rect class="v-node" x="790" y="258" width="190" height="84" rx="12"/>
+                <text class="v-t" x="885" y="288" text-anchor="middle">Pod</text>
+                <text class="v-s mono-s" x="885" y="310" text-anchor="middle">/bindings/database/</text>
+                <text class="v-s" x="885" y="328" text-anchor="middle">host · port · user · …</text>
+                <path class="v-edge" d="M232,300 H268" marker-end="url(#b-arrow)"/>
+                <path class="v-edge" d="M482,300 H518" marker-end="url(#b-arrow)"/>
+                <path class="v-edge" d="M752,300 H788" marker-end="url(#b-arrow)"/>
+
+                <!-- Joins -->
+                <path class="v-edge o-dashed-edge" d="M125,142 C125,200 375,200 375,256" marker-end="url(#b-arrow)"/>
+                <text class="v-label" x="250" y="194" text-anchor="middle">publishes where, not what</text>
+                <path class="v-edge-hi o-hi" d="M635,142 V256" marker-end="url(#b-arrow-hi)"/>
+                <text class="v-label" x="690" y="204" text-anchor="middle">pulls</text>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>The highlighted arrow is the only path the credentials take to the service. The dashed arrow carries only a location.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>The producer publishes where, not what</h3>
+              <p>A <code>Database</code> asks for a size tier, not an instance class. Its Crossplane composition provisions RDS with its network pieces, pushes the connection details (endpoint, port, username, password, database name) to Secrets Manager, and records only that location in its status.</p>
+            </li>
+            <li>
+              <h3>Intent references by name</h3>
+              <p>The service's <code>Release</code> for an environment names the database to bind. Dev and prod bind different databases.</p>
+<pre><code>kind: Release
+metadata: {name: payments-dev}
+spec:
+  componentRef: {name: payments}
+  environment: dev
+  bindings:
+    database: {enabled: true, ref: payments-db}</code></pre>
+            </li>
+            <li>
+              <h3>Translated into generic values</h3>
+              <p>release-operator reads the database's published location and writes it into the service's Helm values. The chart only ever sees a type, a provider and a location; it never learns there was a <code>Database</code> resource.</p>
+<pre><code>bindings:
+  database:
+    type: secret
+    provider: aws-secrets-manager
+    remoteRef: /bindings/dev/databases/payments-db</code></pre>
+            </li>
+            <li>
+              <h3>Consumed as files</h3>
+              <p>With that value present, the chart's binding slot renders an <code>ExternalSecret</code>, mounts the resulting Secret at <code>/bindings/database</code> and sets <code>SERVICE_BINDING_ROOT=/bindings</code>, following the Service Binding for Kubernetes convention. The service reads plain files.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Where, not what</h3>
+              <p>Credentials go from the database to Secrets Manager to the pod, and nowhere else. Git, resource status and Helm values only ever carry a location.</p>
+            </article>
+            <article class="choice">
+              <h3>Generic at the edge</h3>
+              <p>The chart's contract is type, provider and location. A cache or a queue can reuse the same shape, and the chart never depends on how the platform models a database.</p>
+            </article>
+            <article class="choice">
+              <h3>Off by default, on per environment</h3>
+              <p>Every chart carries the slot, switched off. Turning it on is one field on one environment's <code>Release</code>, with no change to the service's code or chart.</p>
+            </article>
+            <article class="choice">
+              <h3>Files, not environment variables</h3>
+              <p>Mounted files follow a standard layout and update in place when the Secret changes. The scaffolded service treats a missing binding as "no database", not as a failure.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> the scaffolded service reads the files at startup, so picking up a rotated password still needs a restart today.</p>
+            </article>
+            <article class="choice">
+              <h3>Sizes, not instance classes</h3>
+              <p>A <code>Database</code> asks for small, medium or large. The composition decides what each tier means, and region, network and engine settings aren't exposed, so they can change without a schema change.</p>
+            </article>
+            <article class="choice">
+              <h3>The same pattern as clusters</h3>
+              <p>A producer publishes where to find it and a consumer picks it up. Workload clusters join the hub the same way. See <a href="../hub-and-spoke/">Hub and spoke</a>.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>Other binding types.</strong> Databases are the only one; the values contract is ready for more.</li>
+            <li><strong>More than one database per Release.</strong> A <code>Release</code> binds a single database today.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/crossplane-compositions"><h3>crossplane-compositions</h3><p>The <code>Database</code> API and what it provisions.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>Resolves bindings into Helm values.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/platform-scaffolds"><h3>platform-scaffolds</h3><p>The chart's binding slot.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../platform-api/"><span>Previous</span>Platform API &amp; operators</a>
+          <a class="next" href="../gitops-delivery/"><span>Next</span>GitOps delivery</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

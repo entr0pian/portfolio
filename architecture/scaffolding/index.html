@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Golden-path scaffolding · Apostolos Gerodimos</title>
+  <meta name="description" content="Every new service starts from a versioned template that already builds, ships, runs safely and shows up in monitoring and the portal.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Golden-path scaffolding</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Golden-path scaffolding</h1>
+      <p class="lede">Every new service starts from a versioned template that already builds, ships, runs safely and shows up in monitoring and the portal. Good standards are where a team starts, not a checklist it works through later.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>1</strong><span>commit turns an empty repository into a working service</span></li>
+      <li><strong>4</strong><span>parameters to fill in: name, repository, owner, team</span></li>
+      <li><strong>0</strong><span>fields added to the platform API for any of it</span></li>
+      <li><strong>Once</strong><span>rendered, then the team owns the repository</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#defaults">What every service gets</a>
+        <a href="#how">How it works</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 420" role="img" aria-labelledby="sc-t">
+                <title id="sc-t">A versioned template in platform-scaffolds is rendered once by scaffold-operator into the new repository: service code, a Helm chart, CI and a catalog file. Each part is what lets the rest of the platform pick the service up: the portal finds it, observability scrapes it, releases deploy it and bindings attach to it.</title>
+                <defs>
+                  <marker id="s-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="s-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <text class="v-label" x="125" y="34" text-anchor="middle">TEMPLATE</text>
+                <text class="v-label" x="495" y="34" text-anchor="middle">THE NEW REPOSITORY</text>
+                <text class="v-label" x="855" y="34" text-anchor="middle">WHAT THE PLATFORM GETS</text>
+
+                <rect class="v-node" x="20" y="150" width="210" height="96" rx="12"/>
+                <text class="v-t" x="125" y="182" text-anchor="middle">platform-scaffolds</text>
+                <text class="v-s mono-s" x="125" y="204" text-anchor="middle">golang-service/v0.12.0</text>
+                <text class="v-s" x="125" y="226" text-anchor="middle">immutable tag</text>
+
+                <path class="v-edge-hi o-hi" d="M232,198 H336" marker-end="url(#s-arrow-hi)"/>
+                <text class="v-label" x="284" y="186" text-anchor="middle">render once</text>
+                <text class="v-label" x="284" y="218" text-anchor="middle">one commit</text>
+
+                <rect class="o-group" x="340" y="48" width="310" height="352" rx="16"/>
+                <rect class="v-node" x="360" y="64" width="270" height="70" rx="12"/>
+                <text class="v-t" x="495" y="92" text-anchor="middle">Service</text>
+                <text class="v-s" x="495" y="114" text-anchor="middle">health · /metrics · JSON logs · landing page</text>
+                <rect class="v-node" x="360" y="146" width="270" height="70" rx="12"/>
+                <text class="v-t" x="495" y="174" text-anchor="middle">Helm chart</text>
+                <text class="v-s" x="495" y="196" text-anchor="middle">2 replicas · probes · limits · PDB · HTTPS</text>
+                <rect class="v-node" x="360" y="228" width="270" height="70" rx="12"/>
+                <text class="v-t" x="495" y="256" text-anchor="middle">Binding slot</text>
+                <text class="v-s" x="495" y="278" text-anchor="middle">database support, present but off</text>
+                <rect class="v-node" x="360" y="310" width="270" height="70" rx="12"/>
+                <text class="v-t" x="495" y="338" text-anchor="middle">CI + catalog-info.yaml</text>
+                <text class="v-s" x="495" y="360" text-anchor="middle">test · lint · image per commit</text>
+
+                <rect class="v-node" x="740" y="64" width="230" height="70" rx="12"/>
+                <text class="v-t" x="855" y="92" text-anchor="middle">Observable</text>
+                <text class="v-s" x="855" y="114" text-anchor="middle">scraped with platform labels</text>
+                <rect class="v-node" x="740" y="146" width="230" height="70" rx="12"/>
+                <text class="v-t" x="855" y="174" text-anchor="middle">Safe to roll out</text>
+                <text class="v-s" x="855" y="196" text-anchor="middle">readiness-gated, reachable</text>
+                <rect class="v-node" x="740" y="228" width="230" height="70" rx="12"/>
+                <text class="v-t" x="855" y="256" text-anchor="middle">Bindable</text>
+                <text class="v-s" x="855" y="278" text-anchor="middle">a Release turns it on</text>
+                <rect class="v-node" x="740" y="310" width="230" height="70" rx="12"/>
+                <text class="v-t" x="855" y="338" text-anchor="middle">Deployable + in the portal</text>
+                <text class="v-s" x="855" y="360" text-anchor="middle">images to release, auto-discovered</text>
+
+                <path class="v-edge" d="M632,99 H738" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M632,181 H738" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M632,263 H738" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M632,345 H738" marker-end="url(#s-arrow)"/>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>Each part of the generated repository is what lets another part of the platform pick the service up.</figcaption>
+          </figure>
+        </section>
+
+        <section id="defaults">
+          <h2>What every service gets</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Runs safely</h3>
+              <p>Two replicas, readiness-gated rollouts that never drop below capacity, startup, readiness and liveness probes, CPU and memory requests and limits, and a PodDisruptionBudget.</p>
+            </article>
+            <article class="choice">
+              <h3>Observable from the first deploy</h3>
+              <p>Prometheus metrics (runtime, HTTP request count and latency by route, database pool) and a <code>ServiceMonitor</code> that adds the platform's identity labels. JSON logs with one access-log line per request. See <a href="../observability/">Observability</a>.</p>
+            </article>
+            <article class="choice">
+              <h3>Reachable</h3>
+              <p>A public HTTPS endpoint at <code>&lt;service&gt;.&lt;env&gt;.gerodimos.dev</code> with a landing page, while <code>/metrics</code> is answered with a 404 at the load balancer, so only in-cluster Prometheus sees it.</p>
+            </article>
+            <article class="choice">
+              <h3>Ready for a database</h3>
+              <p>The chart ships the database binding switched off. A <code>Release</code> switches it on per environment, without touching the service's code. See <a href="../service-bindings/">Service bindings</a>.</p>
+            </article>
+            <article class="choice">
+              <h3>Shippable</h3>
+              <p>CI runs Go tests, <code>helm lint</code> and chart unit tests, then pushes an image tagged with the commit, which is what a <code>Release</code> deploys.</p>
+            </article>
+            <article class="choice">
+              <h3>Discoverable</h3>
+              <p>A <code>catalog-info.yaml</code> with the owning team, so the service appears in Backstage without anyone registering it.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>Pick a template and a version</h3>
+              <p>Backstage's Onboard Service form lists the template's release tags and defaults to the newest. The choice is recorded on the <code>Component</code>.</p>
+<pre><code>spec:
+  scaffold: {template: golang-service, version: "0.12.0"}</code></pre>
+            </li>
+            <li>
+              <h3>Render once, as one commit</h3>
+              <p>component-operator creates the repository and a <code>ScaffoldRequest</code>; scaffold-operator renders the tagged template into it as a single commit and records exactly which template commit it used. It never touches the repository again.</p>
+            </li>
+            <li>
+              <h3>Deliberately simple templating</h3>
+              <p>Only files ending in <code>.tpl</code> are rendered, and only exact <code>{{ parameterName }}</code> placeholders are replaced. Helm templates and GitHub Actions expressions pass through untouched, because they belong to engines that run later.</p>
+            </li>
+            <li>
+              <h3>Versioned like a product</h3>
+              <p>Each template has its own SemVer tags, and a release check fails unless the template's declared version matches the tag. A change can be tried on a real generated repository (tests, chart lint, image build) before it's tagged.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Conventions in the template, not the API</h3>
+              <p>Probes, replicas, metrics and endpoints are template defaults, not <code>Component</code> fields. The API stays a small identity record, and a team can still change any default in its own repository.</p>
+            </article>
+            <article class="choice">
+              <h3>Render once, then hand over</h3>
+              <p>The team owns its repository from the first commit. Nothing reaches back in and overwrites its changes.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> existing services don't get template improvements automatically; moving to a newer version is a pull request in each service's repository.</p>
+            </article>
+            <article class="choice">
+              <h3>The platform contract is built in</h3>
+              <p>The chart puts the platform's <code>component</code> and <code>environment</code> labels on every workload. Everything that finds services by those labels (dashboards, the portal, Argo CD lookups) works for a new service with no setup.</p>
+            </article>
+            <article class="choice">
+              <h3>Dumb templating on purpose</h3>
+              <p>No logic in the template engine means no surprises in generated files, and no collision with Helm's or GitHub Actions' own <code>{{ }}</code> syntax.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>A second template.</strong> <code>golang-service</code> is the only one; adding another is adding a directory.</li>
+            <li><strong>Assisted upgrades.</strong> Nothing yet opens the upgrade pull request for services on an older template version.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/platform-scaffolds"><h3>platform-scaffolds</h3><p>The versioned templates.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/scaffold-operator"><h3>scaffold-operator</h3><p>Renders a template into a new repository, once.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/component-operator"><h3>component-operator</h3><p>Creates the repository and asks for the scaffold.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../developer-experience/"><span>Previous</span>Developer experience</a>
+          <a class="next" href="../platform-api/"><span>Next</span>Platform API &amp; operators</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

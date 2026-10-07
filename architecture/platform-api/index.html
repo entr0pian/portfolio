@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Platform API &amp; operators · Apostolos Gerodimos</title>
+  <meta name="description" content="Component is just an identity. Every capability is its own resource that points back to it through componentRef, reconciled by its own controller.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Platform API &amp; operators</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Platform API &amp; operators</h1>
+      <p class="lede"><code>Component</code> is just an identity. Every capability, such as a deployment or a database, is its own resource that points back to it, reconciled by its own controller.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>1</strong><span>identity resource per service: <code>Component</code></span></li>
+      <li><strong>3</strong><span>Go operators, each owning one resource type</span></li>
+      <li><strong>0</strong><span>lists of related resources kept on a <code>Component</code></span></li>
+      <li><strong>2</strong><span>ownership exceptions, each written down with its consequences</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#operators">The operators</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 430" role="img" aria-labelledby="pa-t">
+                <title id="pa-t">Component payments sits at the centre. It owns two resources, its GitHubRepository and its ScaffoldRequest. Independent resources point back to it through componentRef: a Release for dev, a Release for prod, and a Database for dev. Each is reconciled by its own controller.</title>
+                <defs>
+                  <marker id="p-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="p-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <rect class="v-node-hi" x="380" y="30" width="240" height="84" rx="14"/>
+                <text class="v-t" x="500" y="62" text-anchor="middle">Component/payments</text>
+                <text class="v-s" x="500" y="84" text-anchor="middle">name · owner · repository · scaffold</text>
+                <text class="v-s" x="500" y="102" text-anchor="middle">component-operator</text>
+
+                <text class="v-label" x="150" y="166" text-anchor="middle">OWNED · deleted with it</text>
+                <text class="v-label" x="840" y="166" text-anchor="middle">INDEPENDENT · point back by componentRef</text>
+
+                <!-- Owned -->
+                <rect class="v-node" x="40" y="186" width="230" height="76" rx="12"/>
+                <text class="v-t" x="155" y="214" text-anchor="middle">GitHubRepository</text>
+                <text class="v-s" x="155" y="236" text-anchor="middle">Crossplane: repo + CI webhook</text>
+                <rect class="v-node" x="40" y="290" width="230" height="76" rx="12"/>
+                <text class="v-t" x="155" y="318" text-anchor="middle">ScaffoldRequest</text>
+                <text class="v-s" x="155" y="340" text-anchor="middle">scaffold-operator: one commit</text>
+                <path class="v-edge" d="M378,80 C300,80 300,224 272,224" marker-end="url(#p-arrow)"/>
+                <path class="v-edge" d="M378,98 C320,98 320,328 272,328" marker-end="url(#p-arrow)"/>
+                <text class="v-label" x="318" y="160" text-anchor="middle">owns</text>
+
+                <!-- Independent -->
+                <rect class="v-node" x="730" y="186" width="230" height="64" rx="12"/>
+                <text class="v-t" x="845" y="212" text-anchor="middle">Release/payments-dev</text>
+                <text class="v-s" x="845" y="232" text-anchor="middle">release-operator</text>
+                <rect class="v-node" x="730" y="266" width="230" height="64" rx="12"/>
+                <text class="v-t" x="845" y="292" text-anchor="middle">Release/payments-prod</text>
+                <text class="v-s" x="845" y="312" text-anchor="middle">release-operator</text>
+                <rect class="v-node" x="730" y="346" width="230" height="64" rx="12"/>
+                <text class="v-t" x="845" y="372" text-anchor="middle">Database/payments-db</text>
+                <text class="v-s" x="845" y="392" text-anchor="middle">Crossplane: RDS in dev</text>
+                <path class="v-edge-hi o-hi" d="M728,218 C680,218 680,72 622,72" marker-end="url(#p-arrow-hi)"/>
+                <path class="v-edge-hi o-hi" d="M728,298 C670,298 670,88 622,88" marker-end="url(#p-arrow-hi)"/>
+                <path class="v-edge-hi o-hi" d="M728,378 C660,378 660,104 622,104" marker-end="url(#p-arrow-hi)"/>
+
+                <!-- Lookup -->
+                <rect class="v-node" x="380" y="300" width="240" height="84" rx="14"/>
+                <text class="v-t" x="500" y="330" text-anchor="middle">Readers</text>
+                <text class="v-s" x="500" y="352" text-anchor="middle">Backstage · Argo CD labels</text>
+                <text class="v-s" x="500" y="370" text-anchor="middle">query by componentRef / label</text>
+                <path class="v-edge o-dashed-edge" d="M500,298 V116" marker-end="url(#p-arrow)"/>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>Highlighted arrows are <code>componentRef</code>: the related resource knows its <code>Component</code>, never the other way round.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>Component is an identity record</h3>
+              <p>A name, an owning team, a repository and the template it was scaffolded from. It has no fields for deployments, databases or anything else a service might use.</p>
+<pre><code>kind: Component
+metadata: {name: payments}
+spec:
+  owner: payments-team
+  repository: {name: payments, visibility: public}
+  scaffold: {template: golang-service, version: "0.12.0"}</code></pre>
+            </li>
+            <li>
+              <h3>Everything else points back</h3>
+              <p>A <code>Release</code> or a <code>Database</code> names its <code>Component</code> in <code>spec.componentRef</code>. That reference is the source of truth; the <code>platform.taskapp.io/component</code> label used for querying is derived from it.</p>
+<pre><code>kind: Release
+metadata: {name: payments-dev}
+spec:
+  componentRef: {name: payments}
+  environment: dev
+  autoDeploy: {branch: main}</code></pre>
+            </li>
+            <li>
+              <h3>Controllers look things up when they need them</h3>
+              <p>Each controller reconciles only its own type. When it needs shared information it reads the <code>Component</code>: release-operator, for example, looks up the repository to deploy from, and waits until the <code>Component</code> is ready.</p>
+            </li>
+            <li>
+              <h3>Readers discover, nobody registers</h3>
+              <p>Backstage, Argo CD lookups and dashboards find everything about a service by <code>componentRef</code> or the derived labels. Adding a new kind of capability doesn't change the <code>Component</code> or any list of what it has.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="operators">
+          <h2>The operators</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>component-operator</h3>
+              <p>Gives a <code>Component</code> its GitHub repository (a Crossplane <code>GitHubRepository</code>) and a <code>ScaffoldRequest</code>, and owns both.</p>
+            </article>
+            <article class="choice">
+              <h3>scaffold-operator</h3>
+              <p>Renders a versioned template into the new repository as one commit, once. See <a href="../scaffolding/">Golden-path scaffolding</a>.</p>
+            </article>
+            <article class="choice">
+              <h3>release-operator</h3>
+              <p>Turns a <code>Release</code> into the deployment files Argo CD reads, resolves its bindings, and follows <code>main</code> for auto-deploy. It writes to Git, never to a workload cluster.</p>
+            </article>
+            <article class="choice">
+              <h3>Crossplane</h3>
+              <p>Not one of the three, but the same pattern: <code>GitHubRepository</code> and <code>Database</code> are Crossplane APIs, shipped as versioned packages, that reconcile into GitHub and AWS.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>A small API, not a mega-CRD</h3>
+              <p>One resource with fields for every capability would turn into an orchestration engine. Separate resources let a deployment, a database or a future queue evolve, version and fail independently.</p>
+            </article>
+            <article class="choice">
+              <h3>Reference, don't register</h3>
+              <p>A <code>Component</code> keeps no list of what belongs to it, so adding a capability never touches it, and nothing can drift out of sync.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> no single object shows everything about a service; readers such as Backstage assemble the view.</p>
+            </article>
+            <article class="choice">
+              <h3>Exceptions are written down</h3>
+              <p>The repository and the scaffold request are owned by the <code>Component</code>, because a service without its repository isn't onboarded. Ownership means cascade deletion, so each exception is documented with its consequences before it's built.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> deleting a <code>Component</code> doesn't remove its releases or databases; those are separate, deliberate changes.</p>
+            </article>
+            <article class="choice">
+              <h3>The reference is the truth, labels are derived</h3>
+              <p>Labels are only ever derived: component-operator stamps them on what it creates, and the Argo CD Application for every <code>Release</code> and <code>Database</code> takes its label from <code>componentRef</code>. A hand-set label can't attach a resource to the wrong service.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>More capabilities.</strong> Queues, caches and buckets fit the same model as <code>Database</code>; none exist yet.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/component-operator"><h3>component-operator</h3><p>The <code>Component</code> API and its controller.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>The <code>Release</code> API and its controller.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/crossplane-compositions"><h3>crossplane-compositions</h3><p><code>GitHubRepository</code> and <code>Database</code>.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../scaffolding/"><span>Previous</span>Golden-path scaffolding</a>
+          <a class="next" href="../service-bindings/"><span>Next</span>Service bindings</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

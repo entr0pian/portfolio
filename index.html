@@ -23,7 +23,6 @@
       <nav aria-label="Sections">
         <a href="#demo">Golden paths</a>
         <a href="#architecture">Architecture</a>
-        <a href="#decisions">Decisions</a>
         <a href="#code">Code</a>
       </nav>
     </div>
@@ -99,26 +98,29 @@
       </ol>
 
       <div class="areas">
-        <article class="card">
+        <a class="card" href="architecture/developer-experience/">
           <h3>Developer experience</h3>
-          <p>Backstage templates are the golden paths: a few questions, then a pull request opened as the platform's own GitHub App. The same portal shows each service's versions, rollouts, metrics, logs and dependencies.</p>
-        </article>
-        <article class="card">
-          <h3>Platform APIs &amp; operators</h3>
-          <p><code>Component</code> is an identity; <code>Release</code> and <code>Database</code> point back to it. Three Go operators reconcile them: one creates the repository, one scaffolds it from a versioned template, one turns releases into deployment commits.</p>
-        </article>
-        <a class="card" href="architecture/gitops-delivery/">
-          <h3>GitOps delivery</h3>
-          <p>One Argo CD on the management cluster reads one GitOps repository through four ApplicationSets and deploys to every cluster, matched by an <code>environment</code> label. Webhooks make a merge show up in seconds.</p>
+          <p>Backstage is the only interface a developer needs. Every golden path ends in a pull request, and every result, from rollouts to metrics, is read back into one page per service.</p>
           <span class="read-more">Read more →</span>
         </a>
-        <article class="card">
-          <h3>Infrastructure provisioning</h3>
-          <p>Crossplane exposes infrastructure as Kubernetes APIs, shipped as versioned packages: GitHub repositories for every component, and RDS databases whose credentials reach services through Secrets Manager.</p>
-        </article>
-        <a class="card" href="architecture/observability/">
-          <h3>Observability</h3>
-          <p>Every scaffolded service exposes metrics with the same identity labels. Each cluster's Prometheus remote-writes to a central Mimir, which Grafana and the portal read, so every service is observable from day one.</p>
+        <a class="card" href="architecture/scaffolding/">
+          <h3>Golden-path scaffolding</h3>
+          <p>Every new service starts from a versioned template that already builds, ships, runs safely and shows up in monitoring and the portal, rendered once as a single commit.</p>
+          <span class="read-more">Read more →</span>
+        </a>
+        <a class="card" href="architecture/platform-api/">
+          <h3>Platform API &amp; operators</h3>
+          <p><code>Component</code> is just an identity. Releases and databases are independent resources that point back to it through <code>componentRef</code>, each reconciled by its own Go operator.</p>
+          <span class="read-more">Read more →</span>
+        </a>
+        <a class="card" href="architecture/service-bindings/">
+          <h3>Service bindings</h3>
+          <p>A service asks for a database by name. Crossplane provisions it, Secrets Manager holds its credentials, and the pod reads them as files. No credential ever passes through Git.</p>
+          <span class="read-more">Read more →</span>
+        </a>
+        <a class="card" href="architecture/gitops-delivery/">
+          <h3>GitOps delivery</h3>
+          <p>One repository records what runs where. Each of its directories is read by its own Argo CD ApplicationSet, and every change, by a person or a bot, is a commit.</p>
           <span class="read-more">Read more →</span>
         </a>
         <a class="card" href="architecture/hub-and-spoke/">
@@ -126,59 +128,23 @@
           <p>One management cluster runs the whole platform: Argo CD, Backstage, Mimir and the operators. Dev and prod only run services, so every environment is deployed and observed from one place.</p>
           <span class="read-more">Read more →</span>
         </a>
+        <a class="card" href="architecture/observability/">
+          <h3>Observability</h3>
+          <p>Every service is observable from its first deploy. Two labels decide which metrics leave each cluster, and one store serves Grafana and the portal for every environment.</p>
+          <span class="read-more">Read more →</span>
+        </a>
       </div>
     </section>
 
-    <!-- Decisions -->
-    <section id="decisions" class="section wrap">
-      <div class="section-head">
-        <p class="eyebrow">Design decisions</p>
-        <h2>The choices behind it</h2>
-        <p>The full reasoning lives in the <a href="https://github.com/entr0pian/platform-architecture">architecture docs</a>.</p>
-      </div>
-      <div class="grid">
-        <article class="card">
-          <h3>A small API, not a mega-CRD</h3>
-          <p><code>Component</code> is just an identity record. Databases, releases and queues are independent resources that point back to it, so each can evolve on its own instead of turning one CRD into an orchestration engine.</p>
-        </article>
-        <article class="card">
-          <h3>Git is the record of what runs where</h3>
-          <p>Onboarding, deploys and auto-deploys all end as commits in one GitOps repo. Every change is reviewable and revertable, and the cluster can be rebuilt from Git.</p>
-        </article>
-        <article class="card">
-          <h3>Bots, not personal tokens</h3>
-          <p>The portal, the scaffolder and the release automation each commit as their own GitHub App with short-lived, narrowly scoped tokens; CI reaches AWS through OIDC with no stored secrets.</p>
-        </article>
-        <article class="card">
-          <h3>Disposable clusters, durable state</h3>
-          <p>The EKS clusters are created and destroyed daily to keep cost down. DNS, certificates, secrets and Terraform state live outside them, so a fresh cluster converges from Git in minutes.</p>
-        </article>
-        <article class="card">
-          <h3>Safe to show the public</h3>
-          <p>Guests browse the live portal read-only. Metrics come from fixed server-side queries, so a visitor can't send PromQL; logs and templates are owner-only.</p>
-        </article>
-        <article class="card">
-          <h3>Observability by default</h3>
-          <p>Every scaffolded service exposes the same metrics and identity labels, so one dashboard and one portal tab cover every service and environment with no per-service setup.</p>
-        </article>
-      </div>
-
-      <ul class="stack" aria-label="Technology">
-        <li>Kubernetes (EKS)</li><li>Argo CD</li><li>Crossplane</li><li>Backstage</li><li>Go · Kubebuilder</li>
-        <li>Helm</li><li>Terraform</li><li>GitHub Actions · OIDC</li><li>External Secrets</li><li>Prometheus</li>
-        <li>Grafana Mimir</li><li>Grafana</li><li>AWS: Route53 · ACM · ALB · Secrets Manager</li><li>k6</li>
-      </ul>
-    </section>
 
     <!-- Code -->
     <section id="code" class="section wrap">
       <div class="section-head">
         <p class="eyebrow">Code</p>
         <h2>Every part is public</h2>
-        <p>Start with the architecture repo; it maps the rest.</p>
+        <p>Each repository's README explains its part; the <a href="#architecture">architecture pages</a> show how they fit together.</p>
       </div>
       <div class="repos">
-        <a class="repo featured" href="https://github.com/entr0pian/platform-architecture"><h3>platform-architecture</h3><p>Architecture, resource model and current state of the platform.</p></a>
         <a class="repo" href="https://github.com/entr0pian/backstage"><h3>backstage</h3><p>The developer portal: golden-path templates, deployments, metrics, guest access.</p></a>
         <a class="repo" href="https://github.com/entr0pian/component-operator"><h3>component-operator</h3><p>Reconciles <code>Component</code> into its GitHub repository and scaffold request.</p></a>
         <a class="repo" href="https://github.com/entr0pian/scaffold-operator"><h3>scaffold-operator</h3><p>One-time, versioned repository scaffolding from golden-path templates.</p></a>
@@ -189,6 +155,11 @@
         <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>Bootstraps the Argo CD ApplicationSets on the management cluster.</p></a>
         <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>Charts for cluster-wide platform resources and supporting infrastructure.</p></a>
       </div>
+      <ul class="stack" aria-label="Technology">
+        <li>Kubernetes (EKS)</li><li>Argo CD</li><li>Crossplane</li><li>Backstage</li><li>Go · Kubebuilder</li>
+        <li>Helm</li><li>Terraform</li><li>GitHub Actions · OIDC</li><li>External Secrets</li><li>Prometheus</li>
+        <li>Grafana Mimir</li><li>Grafana</li><li>AWS: Route53 · ACM · ALB · Secrets Manager</li><li>k6</li>
+      </ul>
       <p class="note">
         The live portal is at <a href="https://platform.gerodimos.dev">platform.gerodimos.dev</a> (guest sign-in, read-only).
         Its cluster only runs while I'm working on it, so it may be offline; the demo above shows it end to end.

@@ -1,12 +1,14 @@
 # portfolio
 
-Source of [gerodimos.dev](https://gerodimos.dev): a single static page (HTML, CSS,
-a few lines of JS), no build step, served by GitHub Pages.
+Source of [gerodimos.dev](https://gerodimos.dev): static HTML, CSS and a few lines
+of JS, no build step, served by GitHub Pages. It is also the platform's canonical
+architecture write-up: one page per architecture area.
 
 | Path | What |
 |---|---|
-| `index.html` | The page |
-| `styles.css` | All styling |
+| `index.html` | The front page: hero, golden-path demo, architecture overview, code |
+| `architecture/<area>/index.html` | One page per architecture area, linked from the front page's cards |
+| `styles.css` | All styling, shared by every page |
 | `main.js` | Click-to-load YouTube embed (no YouTube requests until play) |
 | `assets/` | Video poster, favicon |
 | `CNAME` | Custom domain for GitHub Pages |
@@ -33,3 +35,22 @@ TLS certificate; `.dev` is HSTS-preloaded, so **Enforce HTTPS** must be on.
 Built from `portfolio-video/service-onboarding/build.py` in the workspace. A
 re-cut is a new upload with a new ID: update `data-video-id` and the link in
 `index.html`.
+
+## Architecture pages
+
+Each follows the same outline: the point in one line, four headline facts, a
+hand-drawn inline SVG, how it works, design choices with their trade-offs, what
+isn't built yet, and the repositories involved. In reading order:
+
+| Page | Covers |
+|---|---|
+| `developer-experience` | Backstage: golden paths as pull requests, how it reads platform state |
+| `scaffolding` | Versioned service templates and what every service gets by default |
+| `platform-api` | `Component` as identity, `componentRef`, the operators |
+| `service-bindings` | Database → Secrets Manager → `Release` → mounted files |
+| `gitops-delivery` | `application-repositories` directories and their ApplicationSets |
+| `hub-and-spoke` | The management cluster and how it reaches dev and prod |
+| `observability` | Labels, recording rules, remote write to Mimir |
+
+Every claim is checked against the code, not against plans. When something
+changes, update the page in the same piece of work.

@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Developer experience · Apostolos Gerodimos</title>
+  <meta name="description" content="Backstage is the only interface a developer needs: every action is a pull request, and every result is read back from the platform.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Developer experience</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Developer experience</h1>
+      <p class="lede">Backstage is the only interface a developer needs. Every action it offers is a pull request, and everything it shows is read back from the platform.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>3</strong><span>golden paths, each ending in a pull request</span></li>
+      <li><strong>0</strong><span>writes from the portal to any cluster</span></li>
+      <li><strong>1</strong><span>page per service, covering every environment</span></li>
+      <li><strong>0</strong><span>per-service setup to appear in the portal</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 430" role="img" aria-labelledby="dx-t">
+                <title id="dx-t">A developer uses Backstage. Backstage's only write is a pull request to application-repositories. It reads service repositories for the catalog, platform resources on the management cluster, rollout state from Argo CD, pods and logs from the workload clusters, and metrics from Mimir.</title>
+                <defs>
+                  <marker id="d-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="d-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <rect class="v-node" x="30" y="185" width="170" height="60" rx="30"/>
+                <text class="v-t" x="115" y="221" text-anchor="middle">Developer</text>
+                <path class="v-edge" d="M202,215 H376" marker-end="url(#d-arrow)"/>
+                <text class="v-label" x="290" y="205" text-anchor="middle">fills in a form</text>
+
+                <rect class="v-node-hi" x="380" y="140" width="220" height="150" rx="14"/>
+                <text class="v-t" x="490" y="206" text-anchor="middle">Backstage</text>
+                <text class="v-s" x="490" y="228" text-anchor="middle">golden paths</text>
+                <text class="v-s" x="490" y="246" text-anchor="middle">one page per service</text>
+
+                <!-- The one write -->
+                <rect class="v-node" x="700" y="24" width="280" height="64" rx="12"/>
+                <text class="v-t" x="840" y="51" text-anchor="middle">application-repositories</text>
+                <text class="v-s" x="840" y="72" text-anchor="middle">a pull request, merged by a person</text>
+                <path class="v-edge-hi o-hi" d="M602,170 C650,170 650,56 698,56" marker-end="url(#d-arrow-hi)"/>
+                <text class="v-label" x="650" y="104" text-anchor="middle">PR</text>
+
+                <!-- Reads -->
+                <rect class="v-node" x="700" y="104" width="280" height="56" rx="12"/>
+                <text class="v-t" x="840" y="128" text-anchor="middle">Service repositories</text>
+                <text class="v-s" x="840" y="148" text-anchor="middle">catalog-info.yaml</text>
+                <rect class="v-node" x="700" y="176" width="280" height="56" rx="12"/>
+                <text class="v-t" x="840" y="200" text-anchor="middle">Platform resources</text>
+                <text class="v-s" x="840" y="220" text-anchor="middle">Component · Release · Database</text>
+                <rect class="v-node" x="700" y="248" width="280" height="56" rx="12"/>
+                <text class="v-t" x="840" y="272" text-anchor="middle">Argo CD</text>
+                <text class="v-s" x="840" y="292" text-anchor="middle">sync and health</text>
+                <rect class="v-node" x="700" y="320" width="280" height="56" rx="12"/>
+                <text class="v-t" x="840" y="344" text-anchor="middle">dev · prod</text>
+                <text class="v-s" x="840" y="364" text-anchor="middle">pods, rollouts, logs (read-only)</text>
+                <rect class="v-node" x="380" y="340" width="220" height="56" rx="12"/>
+                <text class="v-t" x="490" y="364" text-anchor="middle">Mimir</text>
+                <text class="v-s" x="490" y="384" text-anchor="middle">metrics, fixed queries</text>
+
+                <path class="v-edge o-dashed-edge" d="M698,132 C650,132 650,195 604,195" marker-end="url(#d-arrow)"/>
+                <path class="v-edge o-dashed-edge" d="M698,204 C650,204 650,215 604,215" marker-end="url(#d-arrow)"/>
+                <path class="v-edge o-dashed-edge" d="M698,276 C650,276 650,235 604,235" marker-end="url(#d-arrow)"/>
+                <path class="v-edge o-dashed-edge" d="M698,348 C640,348 650,265 604,265" marker-end="url(#d-arrow)"/>
+                <path class="v-edge o-dashed-edge" d="M490,338 V292" marker-end="url(#d-arrow)"/>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>The highlighted arrow is the portal's only write. Dashed arrows are what it reads to show the result.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>Golden paths are templates</h3>
+              <p>Each asks a handful of questions and renders one or two small files.</p>
+              <ul class="plain">
+                <li><strong>Onboard Service:</strong> name, owner, scaffold template and version, auto-deploy on or off. Adds a <code>Component</code> and its first <code>Release</code>.</li>
+                <li><strong>Create deployment:</strong> environment, a green build, which databases to bind. Adds or updates a <code>Release</code>.</li>
+                <li><strong>Add Database:</strong> environment, name, size. Adds a <code>Database</code>.</li>
+              </ul>
+            </li>
+            <li>
+              <h3>A pull request, not an API call</h3>
+              <p>The files go to <code>application-repositories</code> as a pull request from the portal's own GitHub App. A person reviews and merges it; the operators and Argo CD take it from there. See <a href="../gitops-delivery/">GitOps delivery</a>.</p>
+            </li>
+            <li>
+              <h3>One page per service</h3>
+              <p>Each environment gets a deployment card: the running version and what changed, live rollout steps, sync and health, the public URL, and logs for the owner. Desired state comes from the <code>Release</code> on the management cluster, delivery from Argo CD, and running state from the workload cluster itself, read with a read-only role. See <a href="../hub-and-spoke/">Hub and spoke</a>. Metrics and dependencies have their own tabs.</p>
+            </li>
+            <li>
+              <h3>A catalog nobody registers into</h3>
+              <p>Services appear because their scaffolded repository contains a <code>catalog-info.yaml</code>, found by scanning GitHub. Databases appear because a small provider reads <code>Database</code> resources and publishes them as catalog entities linked to their <code>Component</code>.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Pull requests, not API calls</h3>
+              <p>A template that wrote to a cluster would bypass review and Git history. A pull request is reviewable and revertable, and it's the same path everything else takes.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> every action waits for a merge. Dev auto-deploys after that; prod is meant to wait.</p>
+            </article>
+            <article class="choice">
+              <h3>Discovery by label, not by name</h3>
+              <p>Argo CD Applications and Kubernetes workloads are found through the platform's <code>component</code> and <code>environment</code> labels, so naming conventions can change without breaking the portal.</p>
+            </article>
+            <article class="choice">
+              <h3>Read-only to the world</h3>
+              <p>Anyone can sign in as a guest and browse. An explicit allowlist decides what guests can do: a permission a new plugin introduces stays denied until it's added. Templates and logs are owner-only.</p>
+            </article>
+            <article class="choice">
+              <h3>Fixed queries for guests</h3>
+              <p>The Metrics tab's backend takes only a component and an environment and runs a fixed set of queries, instead of exposing a Prometheus proxy anyone could query.</p>
+            </article>
+            <article class="choice">
+              <h3>A bot, not a person's token</h3>
+              <p>Pull requests come from the portal's GitHub App with short-lived tokens, so nothing depends on an individual's account.</p>
+            </article>
+            <article class="choice">
+              <h3>Stock plugins first</h3>
+              <p>Catalog, scaffolder, Kubernetes and the community Argo CD plugin do most of the work. Small platform modules fill the gaps, such as the database provider and the metrics route.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> those modules have to be carried through every Backstage upgrade.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>Promote to prod.</strong> A button on the dev card that opens the prod pull request; prod's Rollback button already exists.</li>
+            <li><strong>Log history.</strong> Logs are read live from the pods; there is no central log store yet.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/backstage"><h3>backstage</h3><p>The portal, its templates and platform modules.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>Where every template's pull request lands.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../../#architecture"><span>Back to</span>Architecture</a>
+          <a class="next" href="../scaffolding/"><span>Next</span>Golden-path scaffolding</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
