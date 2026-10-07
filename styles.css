@@ -251,6 +251,7 @@ p { margin: 0; }
 .o-group { fill: #10131b; stroke: #2c3244; stroke-width: 1.4; }
 .o-dashed { fill: none; stroke-dasharray: 6 6; }
 .o-hi { stroke: #4fa6e6; }
+.o-dashed-edge { stroke-dasharray: 5 5; }
 .diagram svg { display: block; width: 100%; min-width: 760px; height: auto; }
 .read-more { display: inline-block; margin-top: 12px; color: #b9a9ff; font-size: 0.9rem; font-weight: 600; }
 a.card { display: block; color: var(--text); }

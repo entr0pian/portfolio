@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hub and spoke · Apostolos Gerodimos</title>
+  <meta name="description" content="One management cluster runs the whole platform; dev and prod only run services. How every environment is deployed, read and observed from one place.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#decisions">Decisions</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Hub and spoke</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Hub and spoke</h1>
+      <p class="lede">One management cluster runs the whole platform; dev and prod only run services. Every environment is deployed, inspected and observed from one place.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>1</strong><span>Argo CD for every environment</span></li>
+      <li><strong>0</strong><span>stored cluster credentials: kubeconfigs, tokens or passwords</span></li>
+      <li><strong>2</strong><span>lines in Git to add a cluster</span></li>
+      <li><strong>Any</strong><span>order to rebuild the clusters in; connections re-form by themselves</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 470" role="img" aria-labelledby="hs-t">
+                <title id="hs-t">The management cluster (the hub) runs Argo CD, Backstage, Mimir and Grafana, and the operators with every platform resource. Argo CD syncs from Git and deploys to the dev and prod workload clusters (the spokes); Backstage reads them read-only; their Prometheus pushes metrics into Mimir. The operators commit back to Git.</title>
+                <defs>
+                  <marker id="h-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="h-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <!-- Git -->
+                <rect class="v-node" x="20" y="176" width="180" height="76" rx="12"/>
+                <text class="v-t" x="110" y="208" text-anchor="middle">Git</text>
+                <text class="v-s" x="110" y="230" text-anchor="middle">what runs where</text>
+
+                <!-- Hub -->
+                <rect class="o-group" x="250" y="30" width="400" height="420" rx="16"/>
+                <text class="v-label" x="272" y="58">MANAGEMENT CLUSTER · THE HUB</text>
+
+                <rect class="v-node-hi" x="280" y="76" width="340" height="68" rx="12"/>
+                <text class="v-t" x="450" y="104" text-anchor="middle">Argo CD</text>
+                <text class="v-s" x="450" y="125" text-anchor="middle">one instance, four ApplicationSets</text>
+
+                <rect class="v-node" x="280" y="166" width="340" height="68" rx="12"/>
+                <text class="v-t" x="450" y="194" text-anchor="middle">Backstage</text>
+                <text class="v-s" x="450" y="215" text-anchor="middle">desired and running state on one page</text>
+
+                <rect class="v-node" x="280" y="256" width="340" height="68" rx="12"/>
+                <text class="v-t" x="450" y="284" text-anchor="middle">Mimir + Grafana</text>
+                <text class="v-s" x="450" y="305" text-anchor="middle">every environment's metrics</text>
+
+                <rect class="v-node" x="280" y="346" width="340" height="80" rx="12"/>
+                <text class="v-t" x="450" y="374" text-anchor="middle">Operators · Crossplane</text>
+                <text class="v-s" x="450" y="395" text-anchor="middle">every Component, Release and Database,</text>
+                <text class="v-s" x="450" y="413" text-anchor="middle">for every environment</text>
+
+                <!-- Git ↔ hub -->
+                <path class="v-edge" d="M202,196 C240,196 240,110 278,110" marker-end="url(#h-arrow)"/>
+                <text class="v-label" x="226" y="140" text-anchor="middle">sync</text>
+                <path class="v-edge" d="M278,386 C110,386 110,330 110,254" marker-end="url(#h-arrow)"/>
+                <text class="v-label" x="150" y="340" text-anchor="middle">commit</text>
+
+                <!-- Spokes (stacked: dev, prod) -->
+                <rect class="o-group" x="746" y="80" width="236" height="320" rx="16" opacity="0.5"/>
+                <rect class="o-group" x="738" y="88" width="236" height="320" rx="16"/>
+                <text class="v-label" x="756" y="116">WORKLOAD CLUSTERS · dev · prod</text>
+
+                <rect class="v-node" x="756" y="134" width="200" height="68" rx="12"/>
+                <text class="v-t" x="856" y="162" text-anchor="middle">Services</text>
+                <text class="v-s" x="856" y="183" text-anchor="middle">only what Git deploys</text>
+
+                <rect class="v-node" x="756" y="250" width="200" height="130" rx="12"/>
+                <text class="v-t" x="856" y="278" text-anchor="middle">Thin infra</text>
+                <text class="v-s" x="856" y="302" text-anchor="middle">ingress · DNS · certificates</text>
+                <text class="v-s" x="856" y="322" text-anchor="middle">External Secrets</text>
+                <text class="v-s" x="856" y="342" text-anchor="middle">Prometheus</text>
+                <text class="v-s" x="856" y="362" text-anchor="middle">read-only role for Backstage</text>
+
+                <!-- Hub ↔ spokes -->
+                <path class="v-edge-hi o-hi" d="M622,110 H736" marker-end="url(#h-arrow-hi)"/>
+                <text class="v-label" x="690" y="100" text-anchor="middle">deploy</text>
+                <path class="v-edge o-dashed-edge" d="M622,200 H736" marker-end="url(#h-arrow)"/>
+                <text class="v-label" x="690" y="190" text-anchor="middle">read only</text>
+                <path class="v-edge" d="M736,290 H624" marker-end="url(#h-arrow)"/>
+                <text class="v-label" x="690" y="280" text-anchor="middle">metrics</text>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>The arrows show which side starts each connection. Only Argo CD can change a workload cluster.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>The hub runs the platform</h3>
+              <p>Argo CD, Backstage, Mimir and Grafana, the three operators and Crossplane all run on the management cluster, and every platform resource (<code>Component</code>, <code>Release</code>, <code>Database</code>) lives there, whichever environment it targets. Dev and prod run services plus the small, identical set of infrastructure every cluster needs.</p>
+            </li>
+            <li>
+              <h3>A cluster joins through Git</h3>
+              <p>Each workload cluster's Terraform publishes its endpoint and CA to Secrets Manager. On the hub, External Secrets turns them into an Argo CD cluster entry labelled <code>environment: dev</code> and into Backstage's connection files. Neither side ever calls the other to set this up. Which clusters take part is two short lists in Git:</p>
+<pre><code># Argo CD delivers to
+registeredClusters: [dev, prod]
+
+# Backstage reads from
+environments: [dev, prod]</code></pre>
+            </li>
+            <li>
+              <h3>Identities, not credentials</h3>
+              <p>Argo CD and Backstage each have their own AWS IAM role, presented through EKS Pod Identity as short-lived tokens. Each workload cluster decides what a role may do: Argo CD gets admin; Backstage gets a group bound to a read-only <code>ClusterRole</code> (get, list and watch, plus pod logs), which Argo CD itself delivers from Git.</p>
+            </li>
+            <li>
+              <h3>Three directions</h3>
+              <p>Argo CD <strong>deploys out</strong> to the clusters whose label matches each file's environment. Backstage <strong>reads out</strong>: desired state from the hub, running state from the spoke, on one page. Each spoke's Prometheus <strong>pushes in</strong> to Mimir, so Grafana shows every environment side by side. See <a href="../observability/">Observability</a>.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>One Argo CD for everything</h3>
+              <p>A single place to see and change every environment, instead of an Argo CD per cluster drifting apart.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> the hub is a single point of failure for change. If it's down, nothing deploys, though services already running keep running.</p>
+            </article>
+            <article class="choice">
+              <h3>Thin, identical spokes</h3>
+              <p>Dev and prod are built from the same Terraform, differing only in the environment name, and run the same infrastructure set. A workload cluster holds nothing that can change the platform.</p>
+            </article>
+            <article class="choice">
+              <h3>Matched by label, never by URL</h3>
+              <p>ApplicationSets target clusters by their <code>environment</code> label. No cluster address appears anywhere in Git, so a rebuilt cluster with a new endpoint needs no change.</p>
+            </article>
+            <article class="choice">
+              <h3>The spoke decides who gets in</h3>
+              <p>Access is granted to an identity by the cluster being entered, not handed out as a credential. There is nothing to leak or rotate, and read-only is enforced by the spoke, not trusted to Backstage.</p>
+            </article>
+            <article class="choice">
+              <h3>Producer publishes, consumer picks up</h3>
+              <p>A cluster publishes its connection details and the hub turns them into what it needs. This is the same pattern a database uses to reach a service.</p>
+            </article>
+            <article class="choice">
+              <h3>Rebuild in any order</h3>
+              <p>All three clusters are created and destroyed daily. The IAM roles live outside them, and access entries bind to a role's internal ID, so the roles are never recreated and connections re-form on their own.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>A highly available hub.</strong> One management cluster in one region; an outage pauses delivery and the central view.</li>
+            <li><strong>Metrics history across hub rebuilds.</strong> Mimir keeps 48 hours without object storage, so a rebuilt hub starts empty.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>The four ApplicationSets and their cluster selectors.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>Which clusters are registered, and what each one runs.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>Cluster registration templates and Backstage's read-only role.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../../#architecture"><span>Previous</span>GitOps delivery</a>
+          <a class="next" href="../observability/"><span>Next</span>Observability</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

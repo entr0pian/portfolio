@@ -120,9 +120,10 @@
           <p>Every scaffolded service exposes metrics with the same identity labels. Each cluster's Prometheus remote-writes to a central Mimir, which Grafana and the portal read, so every service is observable from day one.</p>
           <span class="read-more">Read more →</span>
         </a>
-        <a class="card card-link" href="https://github.com/entr0pian/platform-architecture">
-          <h3>Go deeper →</h3>
-          <p>The architecture repository has the resource model, the delivery and secrets design, and the current status of every part.</p>
+        <a class="card" href="architecture/hub-and-spoke/">
+          <h3>Hub and spoke</h3>
+          <p>One management cluster runs the whole platform: Argo CD, Backstage, Mimir and the operators. Dev and prod only run services, so every environment is deployed and observed from one place.</p>
+          <span class="read-more">Read more →</span>
         </a>
       </div>
     </section>
