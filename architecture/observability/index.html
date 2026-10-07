@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Observability · Apostolos Gerodimos</title>
+  <meta name="description" content="How every service on the platform is observable from its first deploy, in every environment, with no per-service setup.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#decisions">Decisions</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Observability</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Observability</h1>
+      <p class="lede">Every service is observable from its first deploy, in every environment, with no per-service setup. Two labels make that work.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>0</strong><span>lines of monitoring config written per service</span></li>
+      <li><strong>1</strong><span>metrics store for dev, prod and management</span></li>
+      <li><strong>~100</strong><span>series per environment sent centrally, out of up to 200,000</span></li>
+      <li><strong>0</strong><span>PromQL queries a visitor can send</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 420" role="img" aria-labelledby="obs-t">
+                <title id="obs-t">Every cluster's Prometheus scrapes its services and records platform series, then remote-writes only series labelled with component and environment through a write-only gateway into Mimir on the management cluster. Grafana and Backstage read Mimir.</title>
+                <defs>
+                  <linearGradient id="o-grad" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#7c5cff"/><stop offset="1" stop-color="#22c7de"/></linearGradient>
+                  <marker id="o-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="o-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <!-- Every cluster (stacked ×3) -->
+                <rect class="o-group" x="36" y="44" width="320" height="330" rx="16" opacity="0.35"/>
+                <rect class="o-group" x="28" y="52" width="320" height="330" rx="16" opacity="0.6"/>
+                <rect class="o-group" x="20" y="60" width="320" height="330" rx="16"/>
+                <text class="v-label" x="40" y="88">EVERY CLUSTER · dev · prod · management</text>
+
+                <rect class="v-node" x="50" y="112" width="260" height="72" rx="12"/>
+                <text class="v-t" x="180" y="142" text-anchor="middle">Service</text>
+                <text class="v-s" x="180" y="164" text-anchor="middle">/metrics · component + environment</text>
+
+                <path class="v-edge" d="M180,186 V256" marker-end="url(#o-arrow)"/>
+                <text class="v-label" x="192" y="226">scrape</text>
+
+                <rect class="v-node" x="50" y="258" width="260" height="96" rx="12"/>
+                <text class="v-t" x="180" y="290" text-anchor="middle">Prometheus</text>
+                <text class="v-s" x="180" y="312" text-anchor="middle">ServiceMonitor from the scaffold</text>
+                <text class="v-s" x="180" y="332" text-anchor="middle">records platform:* rules</text>
+
+                <!-- Management -->
+                <rect class="o-group o-dashed" x="400" y="40" width="580" height="350" rx="16"/>
+                <text class="v-label" x="420" y="68">MANAGEMENT CLUSTER</text>
+
+                <path class="v-edge-hi o-hi" d="M312,306 H416" marker-end="url(#o-arrow-hi)"/>
+                <text class="v-label" x="364" y="292" text-anchor="middle">remote write</text>
+                <text class="v-label" x="364" y="330" text-anchor="middle">only labelled</text>
+
+                <rect class="v-node" x="420" y="266" width="230" height="84" rx="12"/>
+                <text class="v-t" x="535" y="296" text-anchor="middle">Gateway</text>
+                <text class="v-s" x="535" y="317" text-anchor="middle">mimir.gerodimos.dev</text>
+                <text class="v-s" x="535" y="336" text-anchor="middle">write-only · Basic Auth</text>
+
+                <path class="v-edge-hi o-hi" d="M535,264 V186" marker-end="url(#o-arrow-hi)"/>
+                <text class="v-label" x="547" y="230">tenant pinned</text>
+
+                <rect class="v-node-hi" x="420" y="100" width="230" height="84" rx="12"/>
+                <text class="v-t" x="535" y="132" text-anchor="middle">Mimir</text>
+                <text class="v-s" x="535" y="154" text-anchor="middle">one store, every environment</text>
+
+                <path class="v-edge" d="M652,128 C690,128 690,118 724,118" marker-end="url(#o-arrow)"/>
+                <path class="v-edge" d="M652,158 C700,158 690,244 724,244" marker-end="url(#o-arrow)"/>
+                <text class="v-label" x="688" y="214" text-anchor="middle">query</text>
+
+                <rect class="v-node" x="726" y="84" width="236" height="72" rx="12"/>
+                <text class="v-t" x="844" y="114" text-anchor="middle">Grafana</text>
+                <text class="v-s" x="844" y="136" text-anchor="middle">one dashboard, every service</text>
+
+                <rect class="v-node" x="726" y="208" width="236" height="72" rx="12"/>
+                <text class="v-t" x="844" y="238" text-anchor="middle">Backstage</text>
+                <text class="v-s" x="844" y="260" text-anchor="middle">Metrics tab · fixed queries</text>
+
+                <path class="v-edge" d="M844,282 V320" marker-end="url(#o-arrow)"/>
+                <rect class="v-node" x="756" y="322" width="176" height="34" rx="17"/>
+                <text class="v-s" x="844" y="343" text-anchor="middle">developers &amp; guests</text>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>Highlighted arrows are the only path metrics take out of a cluster.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>Identity comes from the scaffold</h3>
+              <p>The <code>golang-service</code> template exposes Go runtime, HTTP request count and latency (by matched route, so cardinality stays bounded) and database pool metrics. It also ships a <code>ServiceMonitor</code> that turns the workload's platform labels into <code>component</code> and <code>environment</code>. A new service is scraped the moment it runs.</p>
+            </li>
+            <li>
+              <h3>Platform rules in every cluster</h3>
+              <p>Recording rules join cAdvisor and kube-state-metrics to the pod labels and produce <code>platform:*</code> series (CPU and memory against limits, restarts, readiness, replicas) carrying the same two labels. The labels <em>are</em> the membership test: no namespace or pod-name filters anywhere.</p>
+            </li>
+            <li>
+              <h3>Only the contract leaves the cluster</h3>
+              <p>Each Prometheus remote-writes series that carry <strong>both</strong> labels, and nothing else. Raw Kubernetes metrics stay local.</p>
+<pre><code>writeRelabelConfigs:
+  - sourceLabels: [component, environment]
+    regex: ".+;.+"
+    action: keep</code></pre>
+            </li>
+            <li>
+              <h3>One store, two readers</h3>
+              <p>Grafana's Service Overview dashboard and Backstage's Metrics tab both query Mimir inside the cluster. Pick a component and an environment; every panel is a plain <code>{component, environment}</code> selector.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Measure before shipping</h3>
+              <p>Sending everything would have been ~268,000 series and ~9,000 samples/s, over Mimir's default limits. About 88% of it was API-server histograms nothing on the platform reads, and identical series from two clusters would have collided. The label filter sends ~100 series per environment.</p>
+            </article>
+            <article class="choice">
+              <h3>Labels, not an allowlist</h3>
+              <p>A newly onboarded service is included automatically, and a new dashboard panel needs no remote-write change in every environment.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> a handful of series per service are sent that nothing visualizes yet.</p>
+            </article>
+            <article class="choice">
+              <h3>Write-only from the internet</h3>
+              <p>The public endpoint accepts only authenticated pushes. Each environment has its own credential, generated by Terraform and delivered through Secrets Manager, and the gateway overwrites the tenant header so a writer can't choose one. Reads never leave the management cluster.</p>
+            </article>
+            <article class="choice">
+              <h3>Guests never write PromQL</h3>
+              <p>Backstage's Metrics tab is public, so its backend runs a fixed set of queries. The browser supplies a component and an environment, nothing more.</p>
+            </article>
+            <article class="choice">
+              <h3>A deliberately small Mimir</h3>
+              <p>Single replicas and no object storage: 48 hours of metrics in memory-backed volumes. That fits clusters rebuilt every day.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> an ingester restart loses all metrics. Long-term storage in S3 is the upgrade path.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>Alerting.</strong> The rules exist; there is no Alertmanager or routing.</li>
+            <li><strong>Workload health panels.</strong> Restarts, readiness and OOM kills are recorded but not on the dashboard yet.</li>
+            <li><strong>Logs.</strong> Services log structured JSON ready for Loki; nothing collects it centrally yet.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/platform-scaffolds"><h3>platform-scaffolds</h3><p>Metrics and the <code>ServiceMonitor</code> every service starts with.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p><code>platform:*</code> recording rules and the Service Overview dashboard.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/backstage"><h3>backstage</h3><p>The Metrics tab and its fixed-query backend.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../../#architecture"><span>Previous</span>Infrastructure provisioning</a>
+          <a class="next" href="../../#architecture"><span>Next</span>Developer experience</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
