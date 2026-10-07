@@ -107,10 +107,11 @@
           <h3>Platform APIs &amp; operators</h3>
           <p><code>Component</code> is an identity; <code>Release</code> and <code>Database</code> point back to it. Three Go operators reconcile them: one creates the repository, one scaffolds it from a versioned template, one turns releases into deployment commits.</p>
         </article>
-        <article class="card">
+        <a class="card" href="architecture/gitops-delivery/">
           <h3>GitOps delivery</h3>
           <p>One Argo CD on the management cluster reads one GitOps repository through four ApplicationSets and deploys to every cluster, matched by an <code>environment</code> label. Webhooks make a merge show up in seconds.</p>
-        </article>
+          <span class="read-more">Read more →</span>
+        </a>
         <article class="card">
           <h3>Infrastructure provisioning</h3>
           <p>Crossplane exposes infrastructure as Kubernetes APIs, shipped as versioned packages: GitHub repositories for every component, and RDS databases whose credentials reach services through Secrets Manager.</p>

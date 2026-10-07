@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GitOps delivery · Apostolos Gerodimos</title>
+  <meta name="description" content="Every change to what runs is a commit in one repository; each of its four directories is read by one Argo CD ApplicationSet.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#decisions">Decisions</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>GitOps delivery</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>GitOps delivery</h1>
+      <p class="lede">Every change to what runs is a commit in one repository. Each of its four directories is read by one Argo CD ApplicationSet, and only Argo CD applies anything to a cluster.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>1</strong><span>repository records what runs where</span></li>
+      <li><strong>4</strong><span>directories, each read by its own ApplicationSet</span></li>
+      <li><strong>0</strong><span>cluster addresses in Git</span></li>
+      <li><strong>Seconds</strong><span>from merge to sync, by webhook; polling every 3 minutes is only the fallback</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#environments">Dev and prod</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 440" role="img" aria-labelledby="gd-t">
+                <title id="gd-t">Four rows, one per directory of application-repositories. People open pull requests into platform/, which the taskapp-platform ApplicationSet applies to the management cluster. The operators there react and release-operator commits into components/, which taskapp-catalog deploys to dev and prod. People and CI write infra/ and values/, which taskapp-infra deploys to the cluster each file names. People write packages/, which taskapp-packages installs as Crossplane packages.</title>
+                <defs>
+                  <marker id="g-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="g-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <text class="v-label" x="110" y="34" text-anchor="middle">WHO WRITES</text>
+                <text class="v-label" x="350" y="34" text-anchor="middle">DIRECTORY</text>
+                <text class="v-label" x="600" y="34" text-anchor="middle">APPLICATIONSET</text>
+                <text class="v-label" x="865" y="34" text-anchor="middle">LANDS ON</text>
+
+                <rect class="o-group o-dashed" x="238" y="46" width="224" height="380" rx="14"/>
+
+                <!-- Row 1: platform/ -->
+                <rect class="v-node" x="20" y="60" width="180" height="64" rx="12"/>
+                <text class="v-t" x="110" y="87" text-anchor="middle">People</text>
+                <text class="v-s" x="110" y="107" text-anchor="middle">PR from Backstage</text>
+                <rect class="v-node-hi" x="250" y="60" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="350" y="87" text-anchor="middle">platform/</text>
+                <text class="v-s" x="350" y="107" text-anchor="middle">Component · Release · Database</text>
+                <rect class="v-node" x="500" y="60" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="600" y="97" text-anchor="middle">taskapp-platform</text>
+                <rect class="v-node" x="750" y="60" width="230" height="64" rx="12"/>
+                <text class="v-t" x="865" y="87" text-anchor="middle">management</text>
+                <text class="v-s" x="865" y="107" text-anchor="middle">applied as-is; operators react</text>
+
+                <!-- Operators commit back -->
+                <path class="v-edge-hi o-hi o-dashed-edge" d="M865,126 V145 H110 V164" marker-end="url(#g-arrow-hi)"/>
+                <text class="v-label" x="600" y="149" text-anchor="middle">operators commit back</text>
+
+                <!-- Row 2: components/ -->
+                <rect class="v-node" x="20" y="166" width="180" height="64" rx="12"/>
+                <text class="v-t" x="110" y="193" text-anchor="middle">release-operator</text>
+                <text class="v-s" x="110" y="213" text-anchor="middle">only writer</text>
+                <rect class="v-node-hi" x="250" y="166" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="350" y="193" text-anchor="middle">components/</text>
+                <text class="v-s" x="350" y="213" text-anchor="middle">derived deployment files</text>
+                <rect class="v-node" x="500" y="166" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="600" y="203" text-anchor="middle">taskapp-catalog</text>
+                <rect class="v-node" x="750" y="166" width="230" height="64" rx="12"/>
+                <text class="v-t" x="865" y="193" text-anchor="middle">dev · prod</text>
+                <text class="v-s" x="865" y="213" text-anchor="middle">the services</text>
+
+                <!-- Row 3: infra/ + values/ -->
+                <rect class="v-node" x="20" y="256" width="180" height="64" rx="12"/>
+                <text class="v-t" x="110" y="283" text-anchor="middle">People + CI</text>
+                <text class="v-s" x="110" y="303" text-anchor="middle">PR · version bumps</text>
+                <rect class="v-node-hi" x="250" y="256" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="350" y="283" text-anchor="middle">infra/ + values/</text>
+                <text class="v-s" x="350" y="303" text-anchor="middle">cluster infrastructure</text>
+                <rect class="v-node" x="500" y="256" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="600" y="293" text-anchor="middle">taskapp-infra</text>
+                <rect class="v-node" x="750" y="256" width="230" height="64" rx="12"/>
+                <text class="v-t" x="865" y="283" text-anchor="middle">each file's cluster</text>
+                <text class="v-s" x="865" y="303" text-anchor="middle">incl. the platform itself</text>
+
+                <!-- Row 4: packages/ -->
+                <rect class="v-node" x="20" y="346" width="180" height="64" rx="12"/>
+                <text class="v-t" x="110" y="373" text-anchor="middle">People</text>
+                <text class="v-s" x="110" y="393" text-anchor="middle">PR · one-line version</text>
+                <rect class="v-node-hi" x="250" y="346" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="350" y="373" text-anchor="middle">packages/</text>
+                <text class="v-s" x="350" y="393" text-anchor="middle">Crossplane package versions</text>
+                <rect class="v-node" x="500" y="346" width="200" height="64" rx="12"/>
+                <text class="v-t mono" x="600" y="383" text-anchor="middle">taskapp-packages</text>
+                <rect class="v-node" x="750" y="346" width="230" height="64" rx="12"/>
+                <text class="v-t" x="865" y="373" text-anchor="middle">each file's cluster</text>
+                <text class="v-s" x="865" y="393" text-anchor="middle">infrastructure APIs</text>
+
+                <!-- Row edges -->
+                <path class="v-edge" d="M202,92 H248" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M452,92 H498" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M702,92 H748" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M202,198 H248" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M452,198 H498" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M702,198 H748" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M202,288 H248" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M452,288 H498" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M702,288 H748" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M202,378 H248" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M452,378 H498" marker-end="url(#g-arrow)"/>
+                <path class="v-edge" d="M702,378 H748" marker-end="url(#g-arrow)"/>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>The dashed box is <code>application-repositories</code>. Each row is one directory and the one ApplicationSet that reads it.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>One file per thing, per environment</h3>
+              <p>The path names what it is and where it runs; the environment in the path selects the cluster.</p>
+<pre><code>platform/registry/payments.yaml                 # Component: identity
+platform/environments/dev/payments-release.yaml  # Release: what runs in dev
+components/payments/environments/dev.yaml        # derived: chart source
+components/payments/values/dev.yaml              # derived: image tag
+infra/backstage/management.yaml                  # infra: chart source
+values/backstage/management.yaml                 # infra: Helm values
+packages/crossplane-compositions/management.yaml # package version</code></pre>
+            </li>
+            <li>
+              <h3>Files × clusters</h3>
+              <p>Each ApplicationSet crosses the files in its directory with the registered clusters, keeping only the pairs where the file's environment matches the cluster's <code>environment</code> label. One file in, one Argo CD Application out, pointed at the right cluster.</p>
+<pre><code>generators:
+  - matrix:
+      generators:
+        - git:
+            files: [path: "components/*/environments/*.yaml"]
+        - clusters:
+            selector:
+              matchLabels: {environment: "{{ .environment }}"}</code></pre>
+            </li>
+            <li>
+              <h3>Intent in, deployment state out</h3>
+              <p>Onboarding a service adds a <code>Component</code> and a <code>Release</code> to <code>platform/</code>. They are applied as real Kubernetes resources on the management cluster, where release-operator derives the <code>components/</code> files from the <code>Release</code>, pinning the chart and the image to the same commit of the service's repository.</p>
+            </li>
+            <li>
+              <h3>Every writer makes a commit</h3>
+              <p>People change things through pull requests opened by Backstage's GitHub App. Automation commits directly, as its own bot: release-operator for services, and each platform component's CI for its own version bump. A GitHub webhook brings every push to Argo CD within seconds.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="environments">
+          <h2>Dev and prod</h2>
+          <p class="doc-p">The two environments move differently, and both moves are commits to a <code>Release</code>.</p>
+          <div class="env-policy">
+            <article class="choice">
+              <h3>dev: follows <code>main</code></h3>
+              <p>With <code>autoDeploy</code> on, release-operator moves dev's <code>Release</code> to every green build of <code>main</code>, as a direct commit. There's no rollback: fix forward, and the fix deploys itself.</p>
+              <p class="action">Card action: <strong>Promote to prod</strong> <span class="tag-inline">coming</span></p>
+            </article>
+            <article class="choice">
+              <h3>prod: moves only by pull request</h3>
+              <p><strong>Promote</strong> opens a PR setting prod's version to what dev runs right now. <strong>Rollback</strong> opens a PR back to an earlier prod version, taken from the history of prod's <code>Release</code> file. The chart is pinned to the same commit, so it rolls back too.</p>
+              <p class="action">Card action: <strong>Rollback</strong> <span class="tag-inline">coming</span></p>
+            </article>
+          </div>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Intent separate from deployment state</h3>
+              <p><code>platform/</code> holds what people ask for; <code>components/</code> holds what release-operator derived from it. To change what runs you change the <code>Release</code>, never the derived files.</p>
+            </article>
+            <article class="choice">
+              <h3>Each file has one kind of writer</h3>
+              <p>Automation never overwrites a human decision. Where a chart comes from (reviewed, rarely changes) sits in a different file from its image tag (changes on every deploy).</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> more, smaller files than one values file per app.</p>
+            </article>
+            <article class="choice">
+              <h3>Platform resources aren't Helm releases</h3>
+              <p>Every <code>Release</code> and <code>Database</code> is applied as-is, one Application each, so each has its own sync and health status, and Backstage finds them by label.</p>
+            </article>
+            <article class="choice">
+              <h3>The platform ships itself the same way</h3>
+              <p>The operators and Backstage bump their own versions in <code>infra/</code> after a green build, through a shared workflow. It stores no secret: GitHub's OIDC token assumes an AWS role that can read only the bot's key.</p>
+            </article>
+            <article class="choice">
+              <h3>Push first, polling as backup</h3>
+              <p>Webhooks reach both Argo CD and the ApplicationSet controller, so a merge syncs in seconds. A missed webhook costs at most one 3-minute poll.</p>
+            </article>
+            <article class="choice">
+              <h3>One ApplicationSet per directory</h3>
+              <p>Adding a service or an infra component is adding a file; nothing in the Argo CD repository changes.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> Argo CD doesn't order the Applications one ApplicationSet generates. On a fresh cluster, apps that need another app's CRDs fail first and converge through retries.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>Promote and Rollback buttons.</strong> The policy above is designed; today a prod version is changed through the portal's Deploy a version pull request.</li>
+            <li><strong>Ordered bring-up.</strong> Infra apps on a fresh cluster converge by retry, not by declared order.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>The four directories, and who writes what.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>The four ApplicationSets.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>Turns a <code>Release</code> into deployment commits, including auto-deploy.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../../#architecture"><span>Previous</span>Service bindings</a>
+          <a class="next" href="../hub-and-spoke/"><span>Next</span>Hub and spoke</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>
