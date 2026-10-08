@@ -57,7 +57,7 @@
 
   <rect class="box" x="570" y="270" width="260" height="80" rx="10"/>
   <text class="t" x="700" y="302" text-anchor="middle">Platform APIs + operators</text>
-  <text class="s" x="700" y="324" text-anchor="middle">Component · Release · Database</text>
+  <text class="s" x="700" y="324" text-anchor="middle">Component · Release · Database …</text>
 
   <rect class="box" x="570" y="395" width="260" height="50" rx="10"/>
   <text class="t" x="700" y="425" text-anchor="middle">Crossplane</text>

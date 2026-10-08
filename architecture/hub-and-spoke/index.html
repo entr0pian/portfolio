@@ -72,7 +72,7 @@
 
                 <rect class="v-node-hi" x="280" y="76" width="340" height="68" rx="12"/>
                 <text class="v-t" x="450" y="104" text-anchor="middle">Argo CD</text>
-                <text class="v-s" x="450" y="125" text-anchor="middle">one instance, four ApplicationSets</text>
+                <text class="v-s" x="450" y="125" text-anchor="middle">one instance, five ApplicationSets</text>
 
                 <rect class="v-node" x="280" y="166" width="340" height="68" rx="12"/>
                 <text class="v-t" x="450" y="194" text-anchor="middle">Backstage</text>
@@ -84,7 +84,7 @@
 
                 <rect class="v-node" x="280" y="346" width="340" height="80" rx="12"/>
                 <text class="v-t" x="450" y="374" text-anchor="middle">Operators · Crossplane</text>
-                <text class="v-s" x="450" y="395" text-anchor="middle">every Component, Release and Database,</text>
+                <text class="v-s" x="450" y="395" text-anchor="middle">every Component, Release, Database and schema,</text>
                 <text class="v-s" x="450" y="413" text-anchor="middle">for every environment</text>
 
                 <!-- Git ↔ hub -->
@@ -105,7 +105,7 @@
                 <rect class="v-node" x="756" y="250" width="200" height="130" rx="12"/>
                 <text class="v-t" x="856" y="278" text-anchor="middle">Thin infra</text>
                 <text class="v-s" x="856" y="302" text-anchor="middle">ingress · DNS · certificates</text>
-                <text class="v-s" x="856" y="322" text-anchor="middle">External Secrets</text>
+                <text class="v-s" x="856" y="322" text-anchor="middle">External Secrets · Atlas Operator</text>
                 <text class="v-s" x="856" y="342" text-anchor="middle">Prometheus</text>
                 <text class="v-s" x="856" y="362" text-anchor="middle">read-only role for Backstage</text>
 
@@ -191,7 +191,7 @@ environments: [dev, prod]</code></pre>
         <section id="code">
           <h2>Code</h2>
           <div class="repos repos-compact">
-            <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>The four ApplicationSets and their cluster selectors.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>The ApplicationSets and their cluster selectors.</p></a>
             <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>Which clusters are registered, and what each one runs.</p></a>
             <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>Cluster registration templates and Backstage's read-only role.</p></a>
           </div>

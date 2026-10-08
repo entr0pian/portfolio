@@ -134,7 +134,7 @@ p { margin: 0; }
 .steps h3 { font-size: 1.02rem; margin-bottom: 4px; }
 .steps p { color: var(--muted); font-size: 0.93rem; }
 
-.more-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 40px; }
+.more-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
 .path-card { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 20px 22px; }
 .path-card h3 { font-size: 1.05rem; margin-bottom: 6px; }
 .path-card p { color: var(--muted); font-size: 0.94rem; }
