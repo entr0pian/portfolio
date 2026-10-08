@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" role="img" aria-labelledby="arch-title arch-desc" font-family="Ubuntu Sans, Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif">
   <title id="arch-title">Platform architecture at a glance</title>
-  <desc id="arch-desc">A developer makes a request in Backstage, which opens a pull request on the GitOps configuration in GitHub. Argo CD on the management cluster applies that desired state: platform intent goes to the platform APIs and operators, applications are deployed to the dev and prod workload clusters. The operators commit deployment state back to Git and scaffold application repositories; Crossplane creates the repositories and provisions AWS RDS and Secrets Manager. Metrics flow from the workload clusters to central observability and back to Backstage, together with deployment status from Argo CD.</desc>
+  <desc id="arch-desc">A developer makes a request in Backstage, which opens a pull request on the GitOps configuration in GitHub. Argo CD on the management cluster applies that desired state: platform intent goes to the platform APIs and operators, applications are deployed to the dev and prod workload clusters. The operators commit deployment state back to Git and scaffold application repositories; Crossplane creates the repositories and provisions AWS RDS and Secrets Manager; Atlas Operator in the workload clusters applies each service's schema migrations to its database. Metrics flow from the workload clusters to central observability and back to Backstage, together with deployment status from Argo CD.</desc>
   <style>
     .g-box { fill: #0f1219; stroke: #2a3040; stroke-width: 1.2; stroke-dasharray: 5 5; }
     .g-label { fill: #8f86d9; font-size: 13px; font-weight: 600; letter-spacing: 0.12em; }
@@ -91,6 +91,7 @@
   <path class="e" d="M700,350 V393" marker-end="url(#arch-a)"/>
   <path class="e" d="M570,420 H530 V478 H447" marker-end="url(#arch-a)"/>
   <path class="e" d="M830,420 H918" marker-end="url(#arch-a)"/>
+  <path class="e" d="M1030,282 V408" marker-end="url(#arch-a)"/>
 
   <!-- feedback -->
   <path class="e-back" d="M1140,252 H1180 V520 H832" marker-end="url(#arch-ab)"/>
@@ -107,6 +108,8 @@
   <text class="l" x="487" y="497" text-anchor="middle">create repo</text>
   <text class="l" x="710" y="378">provision</text>
   <text class="l" x="874" y="412" text-anchor="middle">provision</text>
+  <text class="l" x="1040" y="338">migrations</text>
+  <text class="l" x="1040" y="352">(Atlas)</text>
   <text class="l l-back" x="1000" y="513" text-anchor="middle">metrics</text>
   <text class="l l-back" x="400" y="593" text-anchor="middle">metrics · health</text>
   <text class="l l-back" x="480" y="53" text-anchor="middle">deployment status</text>

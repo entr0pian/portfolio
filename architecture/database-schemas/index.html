@@ -65,7 +65,7 @@
             </article>
           </div>
           <ul class="points">
-            <li><strong>Code rollbacks are always safe.</strong> Rolling back never touches the database, and since changes go in additive first, the previous version runs against the newer schema.</li>
+            <li><strong>Code rollbacks leave the database alone.</strong> Rolling back never touches the schema, and because changes go in additive first, the previous version still runs against the newer one.</li>
             <li><strong>Expand, then contract.</strong> Additive changes can land before the code that uses them; destructive ones wait until no running version needs what they remove. It's the standard way to change a schema without downtime, and here it's simply how releases work.</li>
             <li><strong>The riskiest change gets its own review.</strong> A schema change has its own pull request, its own status and its own failure, instead of riding along inside a deploy.</li>
             <li><strong>Migrations run once, outside the service.</strong> Atlas applies each one, so replicas never race to migrate on startup and the service needs no migration logic.</li>
@@ -226,7 +226,7 @@ spec:
             </article>
             <article class="choice">
               <h3>Its own Application</h3>
-              <p>Each service's schema has its own Argo CD Application next to the service's, so the two sync, fail and roll back independently, and a failed migration shows on its own.</p>
+              <p>Each service's schema has its own Argo CD Application next to the service's, so the two sync and fail independently, a failed migration shows on its own, and rolling the code back leaves the schema where it is.</p>
             </article>
             <article class="choice">
               <h3>Checked twice before it counts</h3>

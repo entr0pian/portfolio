@@ -56,7 +56,7 @@
           <figure class="diagram">
             <div class="diagram-scroll">
               <svg viewBox="0 0 1000 420" role="img" aria-labelledby="sc-t">
-                <title id="sc-t">A versioned template in platform-scaffolds is rendered once by scaffold-operator into the new repository: service code, a Helm chart, CI and a catalog file. Each part is what lets the rest of the platform pick the service up: the portal finds it, observability scrapes it, releases deploy it and bindings attach to it.</title>
+                <title id="sc-t">A versioned template in platform-scaffolds is rendered once by scaffold-operator into the new repository: service code, a Helm chart, a migrations directory, CI and a catalog file. Each part is what lets the rest of the platform pick the service up: the portal finds it, observability scrapes it, releases deploy it, bindings attach to it and schemas migrate its database.</title>
                 <defs>
                   <marker id="s-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
                   <marker id="s-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
@@ -83,8 +83,8 @@
                 <text class="v-t" x="495" y="174" text-anchor="middle">Helm chart</text>
                 <text class="v-s" x="495" y="196" text-anchor="middle">2 replicas · probes · limits · PDB · HTTPS</text>
                 <rect class="v-node" x="360" y="228" width="270" height="70" rx="12"/>
-                <text class="v-t" x="495" y="256" text-anchor="middle">Binding slot</text>
-                <text class="v-s" x="495" y="278" text-anchor="middle">database support, present but off</text>
+                <text class="v-t" x="495" y="256" text-anchor="middle">Database slot</text>
+                <text class="v-s" x="495" y="278" text-anchor="middle">binding off · migrations/ ready</text>
                 <rect class="v-node" x="360" y="310" width="270" height="70" rx="12"/>
                 <text class="v-t" x="495" y="338" text-anchor="middle">CI + catalog-info.yaml</text>
                 <text class="v-s" x="495" y="360" text-anchor="middle">test · lint · image · schema package</text>
@@ -96,8 +96,8 @@
                 <text class="v-t" x="855" y="174" text-anchor="middle">Safe to roll out</text>
                 <text class="v-s" x="855" y="196" text-anchor="middle">readiness-gated, reachable</text>
                 <rect class="v-node" x="740" y="228" width="230" height="70" rx="12"/>
-                <text class="v-t" x="855" y="256" text-anchor="middle">Bindable</text>
-                <text class="v-s" x="855" y="278" text-anchor="middle">a Release turns it on</text>
+                <text class="v-t" x="855" y="256" text-anchor="middle">Bindable · migratable</text>
+                <text class="v-s" x="855" y="278" text-anchor="middle">via Release · DatabaseSchema</text>
                 <rect class="v-node" x="740" y="310" width="230" height="70" rx="12"/>
                 <text class="v-t" x="855" y="338" text-anchor="middle">Deployable + in the portal</text>
                 <text class="v-s" x="855" y="360" text-anchor="middle">images to release, auto-discovered</text>
@@ -133,7 +133,7 @@
             </article>
             <article class="choice">
               <h3>Shippable</h3>
-              <p>CI runs Go tests, <code>helm lint</code> and chart unit tests, then pushes an image tagged with the commit, which is what a <code>Release</code> deploys.</p>
+              <p>CI runs Go tests, <code>helm lint</code> and chart unit tests, then pushes an image tagged with the commit, which is what a <code>Release</code> deploys. When <code>migrations/</code> changes, a second workflow checks them and publishes a schema package the same way.</p>
             </article>
             <article class="choice">
               <h3>Discoverable</h3>

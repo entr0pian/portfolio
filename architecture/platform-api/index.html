@@ -136,7 +136,7 @@ spec:
             </li>
             <li>
               <h3>Controllers look things up when they need them</h3>
-              <p>Each controller reconciles only its own type. When it needs shared information it reads the <code>Component</code>: release-operator, for example, looks up the repository to deploy from, and waits until the <code>Component</code> is ready.</p>
+              <p>Each controller reconciles only its own type. When it needs shared information it reads the <code>Component</code>: release-operator, for example, looks up the repository to deploy from, and waits until the <code>Component</code> is ready. schema-operator reads the <code>Component</code> for the repository and the <code>Database</code> for where its credentials live.</p>
             </li>
             <li>
               <h3>Readers discover, nobody registers</h3>
@@ -176,7 +176,7 @@ spec:
           <div class="choices">
             <article class="choice">
               <h3>A small API, not a mega-CRD</h3>
-              <p>One resource with fields for every capability would turn into an orchestration engine. Separate resources let a deployment, a database or a future queue evolve, version and fail independently.</p>
+              <p>One resource with fields for every capability would turn into an orchestration engine. Separate resources let a deployment, a database, its schema or a future queue evolve, version and fail independently.</p>
             </article>
             <article class="choice">
               <h3>Reference, don't register</h3>
@@ -186,11 +186,11 @@ spec:
             <article class="choice">
               <h3>Exceptions are written down</h3>
               <p>The repository and the scaffold request are owned by the <code>Component</code>, because a service without its repository isn't onboarded. Ownership means cascade deletion, so each exception is documented with its consequences before it's built.</p>
-              <p class="tradeoff"><strong>Trade-off:</strong> deleting a <code>Component</code> doesn't remove its releases or databases; those are separate, deliberate changes.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> deleting a <code>Component</code> doesn't remove its releases, databases or schemas; those are separate, deliberate changes.</p>
             </article>
             <article class="choice">
               <h3>The reference is the truth, labels are derived</h3>
-              <p>Labels are only ever derived: component-operator stamps them on what it creates, and the Argo CD Application for every <code>Release</code> and <code>Database</code> takes its label from <code>componentRef</code>. A hand-set label can't attach a resource to the wrong service.</p>
+              <p>Labels are only ever derived: component-operator stamps them on what it creates, and the Argo CD Application for every <code>Release</code>, <code>Database</code> and <code>DatabaseSchema</code> takes its label from <code>componentRef</code>. A hand-set label can't attach a resource to the wrong service.</p>
             </article>
           </div>
         </section>

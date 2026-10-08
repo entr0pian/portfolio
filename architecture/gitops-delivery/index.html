@@ -162,7 +162,7 @@ packages/crossplane-compositions/management.yaml # package version</code></pre>
             </li>
             <li>
               <h3>Files × clusters</h3>
-              <p>Each ApplicationSet crosses the files in its directory with the registered clusters, keeping only the pairs where the file's environment matches the cluster's <code>environment</code> label. One file in, one Argo CD Application out, pointed at the right cluster.</p>
+              <p>Each ApplicationSet crosses the files it reads with the registered clusters, keeping only the pairs where the file's environment matches the cluster's <code>environment</code> label. One file in, one Argo CD Application out, pointed at the right cluster.</p>
 <pre><code>generators:
   - matrix:
       generators:
@@ -194,7 +194,7 @@ packages/crossplane-compositions/management.yaml # package version</code></pre>
             </article>
             <article class="choice">
               <h3>prod: moves only by pull request</h3>
-              <p><strong>Promote</strong> opens a PR setting prod's version to what dev runs right now. <strong>Rollback</strong> opens a PR back to the version that ran before, keeping the environment's bindings. The chart is pinned to the same commit as the image, so it rolls back too.</p>
+              <p><strong>Promote</strong> opens a PR setting prod's version to what dev runs right now. <strong>Rollback</strong> opens a PR back to the version that ran before, keeping the environment's bindings. The chart is pinned to the same commit as the image, so it rolls back too. The database schema doesn't: it only moves forward, by its own pull request. See <a href="../database-schemas/">Database schemas</a>.</p>
               <p class="action">Card action: <strong>Rollback</strong></p>
             </article>
           </div>
@@ -246,6 +246,7 @@ packages/crossplane-compositions/management.yaml # package version</code></pre>
             <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>The four directories, and who writes what.</p></a>
             <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>The ApplicationSets.</p></a>
             <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>Turns a <code>Release</code> into deployment commits, including auto-deploy.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/schema-operator"><h3>schema-operator</h3><p>Turns a <code>DatabaseSchema</code> into its schema pointer.</p></a>
           </div>
         </section>
 

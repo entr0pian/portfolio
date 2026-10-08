@@ -86,14 +86,14 @@
 
       <figure class="diagram">
         <div class="diagram-scroll">
-          <img src="assets/architecture.svg" width="1200" height="640" loading="lazy"
+          <img src="assets/architecture.svg?v=2026-10-08" width="1200" height="640" loading="lazy"
                alt="Architecture: Developer to Backstage, which opens a pull request on the GitOps config in GitHub. Argo CD on the management cluster applies it: platform intent to the platform APIs and operators, applications to the dev and prod workload clusters. Operators commit deployment state back to Git and scaffold service repositories; Crossplane creates the repositories and provisions RDS and Secrets Manager on AWS. Metrics and deployment status flow back to Backstage.">
         </div>
         <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>Thick arrows are the main path; dashed arrows are feedback.</figcaption>
       </figure>
 
       <ol class="read">
-        <li><strong>Git is the system of record.</strong> Golden paths open pull requests; a person merges them. Platform intent (Component, Release, Database) and deployment state live in one GitOps repository.</li>
+        <li><strong>Git is the system of record.</strong> Golden paths open pull requests; a person merges them. Platform intent (Component, Release, Database, DatabaseSchema) and deployment state live in one GitOps repository.</li>
         <li><strong>The management cluster runs only the platform.</strong> Argo CD applies Git to it and reaches out to the workload clusters, which run only services. Nothing in a workload cluster can change the platform.</li>
         <li><strong>Runtime state flows back.</strong> Rollout status, health and metrics from every environment end up in the same portal the request started from.</li>
       </ol>
@@ -111,7 +111,7 @@
         </a>
         <a class="card" href="architecture/platform-api/">
           <h3>Platform API &amp; operators</h3>
-          <p><code>Component</code> is just an identity. Releases and databases are independent resources that point back to it through <code>componentRef</code>, each reconciled by its own Go operator.</p>
+          <p><code>Component</code> is just an identity. Releases, databases and their schemas are independent resources that point back to it through <code>componentRef</code>, each reconciled by its own controller.</p>
           <span class="read-more">Read more →</span>
         </a>
         <a class="card" href="architecture/service-bindings/">
@@ -160,7 +160,7 @@
         <a class="repo" href="https://github.com/entr0pian/crossplane-compositions"><h3>crossplane-compositions</h3><p>Infrastructure APIs (GitHub repositories, Postgres) released as OCI packages.</p></a>
         <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>The GitOps source of truth: what deploys where.</p></a>
         <a class="repo" href="https://github.com/entr0pian/argocd"><h3>argocd</h3><p>Bootstraps the Argo CD ApplicationSets on the management cluster.</p></a>
-        <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>Charts for cluster-wide platform resources and supporting infrastructure.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>Charts for cluster-wide platform resources, supporting infrastructure and the database schema package.</p></a>
       </div>
       <ul class="stack" aria-label="Technology">
         <li>Kubernetes (EKS)</li><li>Argo CD</li><li>Crossplane</li><li>Backstage</li><li>Go · Kubebuilder</li>

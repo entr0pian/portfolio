@@ -125,7 +125,7 @@
             </li>
             <li>
               <h3>One page per service</h3>
-              <p>Each environment gets a deployment card: the running version and what changed, live rollout steps, sync and health, the public URL, and logs for the owner. Desired state comes from the <code>Release</code> on the management cluster, delivery from Argo CD, and running state from the workload cluster itself, read with a read-only role. See <a href="../hub-and-spoke/">Hub and spoke</a>. Metrics and dependencies have their own tabs; each database shows whether it's available, has the newest schema and is bound, and its own page lists every schema check with the states it can be in.</p>
+              <p>Each environment gets a deployment card: the running version and what changed, live rollout steps, sync and health, the public URL, the database schema it runs against (with a warning when the code ships a migration the database doesn't have), and logs for the owner. Desired state comes from the <code>Release</code> on the management cluster, delivery from Argo CD, and running state from the workload cluster itself, read with a read-only role. See <a href="../hub-and-spoke/">Hub and spoke</a>. Metrics and dependencies have their own tabs; each database shows whether it's available, has the newest schema and is bound, and its own page lists every schema check with the states it can be in.</p>
             </li>
             <li>
               <h3>A catalog nobody registers into</h3>
@@ -148,7 +148,7 @@
             </article>
             <article class="choice">
               <h3>Read-only to the world</h3>
-              <p>Anyone can sign in as a guest and browse. An explicit allowlist decides what guests can do: a permission a new plugin introduces stays denied until it's added. Templates and logs are owner-only.</p>
+              <p>Anyone can sign in as a guest and browse. An explicit allowlist decides what guests can do: a permission a new plugin introduces stays denied until it's added. Templates, logs and a failed migration's database error are owner-only.</p>
             </article>
             <article class="choice">
               <h3>Fixed queries for guests</h3>
