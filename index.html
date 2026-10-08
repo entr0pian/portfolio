@@ -118,9 +118,14 @@
           <p>A service asks for a database by name. Crossplane provisions it, Secrets Manager holds its credentials, and the pod reads them as files. No credential ever passes through Git.</p>
           <span class="read-more">Read more →</span>
         </a>
+        <a class="card" href="architecture/database-schemas/">
+          <h3>Database schemas</h3>
+          <p>Code can be rolled back; data can't. A service's schema is released on its own, through its own pull request, and only moves forward, so a code rollback never touches the database.</p>
+          <span class="read-more">Read more →</span>
+        </a>
         <a class="card" href="architecture/gitops-delivery/">
           <h3>GitOps delivery</h3>
-          <p>One repository records what runs where. Each of its directories is read by its own Argo CD ApplicationSet, and every change, by a person or a bot, is a commit.</p>
+          <p>One repository records what runs where. Each kind of file in it is read by its own Argo CD ApplicationSet, and every change, by a person or a bot, is a commit.</p>
           <span class="read-more">Read more →</span>
         </a>
         <a class="card" href="architecture/hub-and-spoke/">
@@ -149,6 +154,7 @@
         <a class="repo" href="https://github.com/entr0pian/component-operator"><h3>component-operator</h3><p>Reconciles <code>Component</code> into its GitHub repository and scaffold request.</p></a>
         <a class="repo" href="https://github.com/entr0pian/scaffold-operator"><h3>scaffold-operator</h3><p>One-time, versioned repository scaffolding from golden-path templates.</p></a>
         <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>Turns <code>Release</code> intent into GitOps deployment commits, including auto-deploy.</p></a>
+        <a class="repo" href="https://github.com/entr0pian/schema-operator"><h3>schema-operator</h3><p>Releases a service's database schema on its own, as a pointer to a versioned migration package.</p></a>
         <a class="repo" href="https://github.com/entr0pian/platform-scaffolds"><h3>platform-scaffolds</h3><p>The versioned service templates every new repository starts from.</p></a>
         <a class="repo" href="https://github.com/entr0pian/crossplane-compositions"><h3>crossplane-compositions</h3><p>Infrastructure APIs (GitHub repositories, Postgres) released as OCI packages.</p></a>
         <a class="repo" href="https://github.com/entr0pian/application-repositories"><h3>application-repositories</h3><p>The GitOps source of truth: what deploys where.</p></a>
@@ -157,8 +163,8 @@
       </div>
       <ul class="stack" aria-label="Technology">
         <li>Kubernetes (EKS)</li><li>Argo CD</li><li>Crossplane</li><li>Backstage</li><li>Go · Kubebuilder</li>
-        <li>Helm</li><li>Terraform</li><li>GitHub Actions · OIDC</li><li>External Secrets</li><li>Prometheus</li>
-        <li>Grafana Mimir</li><li>Grafana</li><li>AWS: Route53 · ACM · ALB · Secrets Manager</li><li>k6</li>
+        <li>Helm</li><li>Terraform</li><li>GitHub Actions · OIDC</li><li>External Secrets</li><li>Atlas</li><li>Prometheus</li>
+        <li>Grafana Mimir</li><li>Grafana</li><li>AWS: Route53 · ACM · ALB · RDS · Secrets Manager</li><li>k6</li>
       </ul>
       <p class="note">
         The live portal is at <a href="https://platform.gerodimos.dev">platform.gerodimos.dev</a> (guest sign-in, read-only).

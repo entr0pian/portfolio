@@ -33,7 +33,7 @@
     </header>
 
     <ul class="facts" aria-label="At a glance">
-      <li><strong>3</strong><span>golden paths, each ending in a pull request</span></li>
+      <li><strong>4</strong><span>golden paths, each ending in a pull request</span></li>
       <li><strong>0</strong><span>writes from the portal to any cluster</span></li>
       <li><strong>1</strong><span>page per service, covering every environment</span></li>
       <li><strong>0</strong><span>per-service setup to appear in the portal</span></li>
@@ -55,7 +55,7 @@
           <figure class="diagram">
             <div class="diagram-scroll">
               <svg viewBox="0 0 1000 430" role="img" aria-labelledby="dx-t">
-                <title id="dx-t">A developer uses Backstage. Backstage's only write is a pull request to application-repositories. It reads service repositories for the catalog, platform resources on the management cluster, rollout state from Argo CD, pods and logs from the workload clusters, and metrics from Mimir.</title>
+                <title id="dx-t">A developer uses Backstage. Backstage's only write is a pull request to application-repositories. It reads service repositories for the catalog, platform resources on the management cluster, rollout state from Argo CD, pods, logs and schema status from the workload clusters, and metrics from Mimir.</title>
                 <defs>
                   <marker id="d-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
                   <marker id="d-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
@@ -84,13 +84,13 @@
                 <text class="v-s" x="840" y="148" text-anchor="middle">catalog-info.yaml</text>
                 <rect class="v-node" x="700" y="176" width="280" height="56" rx="12"/>
                 <text class="v-t" x="840" y="200" text-anchor="middle">Platform resources</text>
-                <text class="v-s" x="840" y="220" text-anchor="middle">Component · Release · Database</text>
+                <text class="v-s" x="840" y="220" text-anchor="middle">Component · Release · Database …</text>
                 <rect class="v-node" x="700" y="248" width="280" height="56" rx="12"/>
                 <text class="v-t" x="840" y="272" text-anchor="middle">Argo CD</text>
                 <text class="v-s" x="840" y="292" text-anchor="middle">sync and health</text>
                 <rect class="v-node" x="700" y="320" width="280" height="56" rx="12"/>
                 <text class="v-t" x="840" y="344" text-anchor="middle">dev · prod</text>
-                <text class="v-s" x="840" y="364" text-anchor="middle">pods, rollouts, logs (read-only)</text>
+                <text class="v-s" x="840" y="364" text-anchor="middle">pods, rollouts, schemas, logs (read-only)</text>
                 <rect class="v-node" x="380" y="340" width="220" height="56" rx="12"/>
                 <text class="v-t" x="490" y="364" text-anchor="middle">Mimir</text>
                 <text class="v-s" x="490" y="384" text-anchor="middle">metrics, fixed queries</text>
@@ -116,6 +116,7 @@
                 <li><strong>Onboard Service:</strong> name, owner, scaffold template and version, auto-deploy on or off. Adds a <code>Component</code> and its first <code>Release</code>.</li>
                 <li><strong>Create deployment:</strong> environment, a green build, which databases to bind. Adds or updates a <code>Release</code>.</li>
                 <li><strong>Add Database:</strong> environment, name, size. Adds a <code>Database</code>.</li>
+                <li><strong>Apply database schema:</strong> environment and a published schema version, showing the migrations it adds. Adds or updates a <code>DatabaseSchema</code>. See <a href="../database-schemas/">Database schemas</a>.</li>
               </ul>
             </li>
             <li>
@@ -124,7 +125,7 @@
             </li>
             <li>
               <h3>One page per service</h3>
-              <p>Each environment gets a deployment card: the running version and what changed, live rollout steps, sync and health, the public URL, and logs for the owner. Desired state comes from the <code>Release</code> on the management cluster, delivery from Argo CD, and running state from the workload cluster itself, read with a read-only role. See <a href="../hub-and-spoke/">Hub and spoke</a>. Metrics and dependencies have their own tabs.</p>
+              <p>Each environment gets a deployment card: the running version and what changed, live rollout steps, sync and health, the public URL, and logs for the owner. Desired state comes from the <code>Release</code> on the management cluster, delivery from Argo CD, and running state from the workload cluster itself, read with a read-only role. See <a href="../hub-and-spoke/">Hub and spoke</a>. Metrics and dependencies have their own tabs; each database shows whether it's available, has the newest schema and is bound, and its own page lists every schema check with the states it can be in.</p>
             </li>
             <li>
               <h3>A catalog nobody registers into</h3>

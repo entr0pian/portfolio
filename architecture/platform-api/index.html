@@ -34,7 +34,7 @@
 
     <ul class="facts" aria-label="At a glance">
       <li><strong>1</strong><span>identity resource per service: <code>Component</code></span></li>
-      <li><strong>3</strong><span>Go operators, each owning one resource type</span></li>
+      <li><strong>4</strong><span>Go operators, each owning one resource type</span></li>
       <li><strong>0</strong><span>lists of related resources kept on a <code>Component</code></span></li>
       <li><strong>2</strong><span>ownership exceptions, each written down with its consequences</span></li>
     </ul>
@@ -55,8 +55,8 @@
           <h2>The shape</h2>
           <figure class="diagram">
             <div class="diagram-scroll">
-              <svg viewBox="0 0 1000 430" role="img" aria-labelledby="pa-t">
-                <title id="pa-t">Component payments sits at the centre. It owns two resources, its GitHubRepository and its ScaffoldRequest. Independent resources point back to it through componentRef: a Release for dev, a Release for prod, and a Database for dev. Each is reconciled by its own controller.</title>
+              <svg viewBox="0 0 1000 510" role="img" aria-labelledby="pa-t">
+                <title id="pa-t">Component payments sits at the centre. It owns two resources, its GitHubRepository and its ScaffoldRequest. Independent resources point back to it through componentRef: a Release for dev, a Release for prod, a Database for dev and that database's DatabaseSchema. Each is reconciled by its own controller.</title>
                 <defs>
                   <marker id="p-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
                   <marker id="p-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
@@ -94,6 +94,10 @@
                 <path class="v-edge-hi o-hi" d="M728,218 C680,218 680,72 622,72" marker-end="url(#p-arrow-hi)"/>
                 <path class="v-edge-hi o-hi" d="M728,298 C670,298 670,88 622,88" marker-end="url(#p-arrow-hi)"/>
                 <path class="v-edge-hi o-hi" d="M728,378 C660,378 660,104 622,104" marker-end="url(#p-arrow-hi)"/>
+                <rect class="v-node" x="730" y="426" width="230" height="64" rx="12"/>
+                <text class="v-t" x="845" y="452" text-anchor="middle">DatabaseSchema/payments</text>
+                <text class="v-s" x="845" y="472" text-anchor="middle">schema-operator</text>
+                <path class="v-edge-hi o-hi" d="M728,458 C650,458 650,110 622,110" marker-end="url(#p-arrow-hi)"/>
 
                 <!-- Lookup -->
                 <rect class="v-node" x="380" y="300" width="240" height="84" rx="14"/>
@@ -118,11 +122,11 @@ metadata: {name: payments}
 spec:
   owner: payments-team
   repository: {name: payments, visibility: public}
-  scaffold: {template: golang-service, version: "0.12.0"}</code></pre>
+  scaffold: {template: golang-service, version: "0.13.0"}</code></pre>
             </li>
             <li>
               <h3>Everything else points back</h3>
-              <p>A <code>Release</code> or a <code>Database</code> names its <code>Component</code> in <code>spec.componentRef</code>. That reference is the source of truth; the <code>platform.taskapp.io/component</code> label used for querying is derived from it.</p>
+              <p>A <code>Release</code>, a <code>Database</code> or a <code>DatabaseSchema</code> names its <code>Component</code> in <code>spec.componentRef</code>. That reference is the source of truth; the <code>platform.taskapp.io/component</code> label used for querying is derived from it.</p>
 <pre><code>kind: Release
 metadata: {name: payments-dev}
 spec:
@@ -157,8 +161,12 @@ spec:
               <p>Turns a <code>Release</code> into the deployment files Argo CD reads, resolves its bindings, and follows <code>main</code> for auto-deploy. It writes to Git, never to a workload cluster.</p>
             </article>
             <article class="choice">
+              <h3>schema-operator</h3>
+              <p>Turns a <code>DatabaseSchema</code> into a pointer to the service's versioned migration package, which Atlas applies in the workload cluster. Also writes only to Git. See <a href="../database-schemas/">Database schemas</a>.</p>
+            </article>
+            <article class="choice">
               <h3>Crossplane</h3>
-              <p>Not one of the three, but the same pattern: <code>GitHubRepository</code> and <code>Database</code> are Crossplane APIs, shipped as versioned packages, that reconcile into GitHub and AWS.</p>
+              <p>Not one of the four, but the same pattern: <code>GitHubRepository</code> and <code>Database</code> are Crossplane APIs, shipped as versioned packages, that reconcile into GitHub and AWS.</p>
             </article>
           </div>
         </section>
@@ -199,6 +207,7 @@ spec:
           <div class="repos repos-compact">
             <a class="repo" href="https://github.com/entr0pian/component-operator"><h3>component-operator</h3><p>The <code>Component</code> API and its controller.</p></a>
             <a class="repo" href="https://github.com/entr0pian/release-operator"><h3>release-operator</h3><p>The <code>Release</code> API and its controller.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/schema-operator"><h3>schema-operator</h3><p>The <code>DatabaseSchema</code> API and its controller.</p></a>
             <a class="repo" href="https://github.com/entr0pian/crossplane-compositions"><h3>crossplane-compositions</h3><p><code>GitHubRepository</code> and <code>Database</code>.</p></a>
           </div>
         </section>

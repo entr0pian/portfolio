@@ -68,7 +68,7 @@
 
                 <rect class="v-node" x="20" y="150" width="210" height="96" rx="12"/>
                 <text class="v-t" x="125" y="182" text-anchor="middle">platform-scaffolds</text>
-                <text class="v-s mono-s" x="125" y="204" text-anchor="middle">golang-service/v0.12.0</text>
+                <text class="v-s mono-s" x="125" y="204" text-anchor="middle">golang-service/v0.13.0</text>
                 <text class="v-s" x="125" y="226" text-anchor="middle">immutable tag</text>
 
                 <path class="v-edge-hi o-hi" d="M232,198 H336" marker-end="url(#s-arrow-hi)"/>
@@ -87,7 +87,7 @@
                 <text class="v-s" x="495" y="278" text-anchor="middle">database support, present but off</text>
                 <rect class="v-node" x="360" y="310" width="270" height="70" rx="12"/>
                 <text class="v-t" x="495" y="338" text-anchor="middle">CI + catalog-info.yaml</text>
-                <text class="v-s" x="495" y="360" text-anchor="middle">test · lint · image per commit</text>
+                <text class="v-s" x="495" y="360" text-anchor="middle">test · lint · image + schema per commit</text>
 
                 <rect class="v-node" x="740" y="64" width="230" height="70" rx="12"/>
                 <text class="v-t" x="855" y="92" text-anchor="middle">Observable</text>
@@ -129,7 +129,7 @@
             </article>
             <article class="choice">
               <h3>Ready for a database</h3>
-              <p>The chart ships the database binding switched off. A <code>Release</code> switches it on per environment, without touching the service's code. See <a href="../service-bindings/">Service bindings</a>.</p>
+              <p>The chart ships the database binding switched off. A <code>Release</code> switches it on per environment, without touching the service's code. See <a href="../service-bindings/">Service bindings</a>. A <code>migrations/</code> directory and a schema workflow that checks and packages it come with it. See <a href="../database-schemas/">Database schemas</a>.</p>
             </article>
             <article class="choice">
               <h3>Shippable</h3>
@@ -149,7 +149,7 @@
               <h3>Pick a template and a version</h3>
               <p>Backstage's Onboard Service form lists the template's release tags and defaults to the newest. The choice is recorded on the <code>Component</code>.</p>
 <pre><code>spec:
-  scaffold: {template: golang-service, version: "0.12.0"}</code></pre>
+  scaffold: {template: golang-service, version: "0.13.0"}</code></pre>
             </li>
             <li>
               <h3>Render once, as one commit</h3>

@@ -127,7 +127,7 @@
           <ol class="flow">
             <li>
               <h3>The hub runs the platform</h3>
-              <p>Argo CD, Backstage, Mimir and Grafana, the three operators and Crossplane all run on the management cluster, and every platform resource (<code>Component</code>, <code>Release</code>, <code>Database</code>) lives there, whichever environment it targets. Dev and prod run services plus the small, identical set of infrastructure every cluster needs.</p>
+              <p>Argo CD, Backstage, Mimir and Grafana, the platform's operators and Crossplane all run on the management cluster, and every platform resource (<code>Component</code>, <code>Release</code>, <code>Database</code>, <code>DatabaseSchema</code>) lives there, whichever environment it targets. Dev and prod run services plus the small, identical set of infrastructure every cluster needs, such as the Atlas Operator that applies database schemas.</p>
             </li>
             <li>
               <h3>A cluster joins through Git</h3>

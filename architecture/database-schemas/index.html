@@ -1,0 +1,278 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Database schemas · Apostolos Gerodimos</title>
+  <meta name="description" content="Code can be rolled back; data can't. A service's database schema is released on its own, through its own pull request, and only ever moves forward.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Database schemas</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture area</p>
+      <h1>Database schemas</h1>
+      <p class="lede">Code can be rolled back; data can't. So a service's database schema is released on its own, through its own pull request, and only ever moves forward. Deploying code never changes the database, and rolling code back never undoes a migration.</p>
+    </header>
+
+    <ul class="facts" aria-label="At a glance">
+      <li><strong>2</strong><span>lifecycles: code moves both ways, the schema only forward</span></li>
+      <li><strong>1</strong><span>pull request applies a schema version to an environment</span></li>
+      <li><strong>2</strong><span>checks on a throwaway Postgres before a migration reaches the database</span></li>
+      <li><strong>0</strong><span>credentials or SQL in Git: only a package version and a location</span></li>
+    </ul>
+
+    <div class="doc-layout">
+      <aside class="toc" aria-label="On this page">
+        <p>On this page</p>
+        <a href="#why">Why separate</a>
+        <a href="#shape">The shape</a>
+        <a href="#how">How it works</a>
+        <a href="#choices">Design choices</a>
+        <a href="#not-yet">Not built yet</a>
+        <a href="#code">Code</a>
+      </aside>
+
+      <article class="doc">
+        <section id="why">
+          <h2>Why the schema has its own lifecycle</h2>
+          <p class="doc-p">The common setup runs migrations as part of a deploy: an init container, a Helm hook or a pre-sync job. That ties two kinds of change to one lifecycle, and they don't behave alike. Rolling back an image is cheap and exact: the old pods come back. Rolling back a migration usually isn't: a dropped column doesn't come back with the old code.</p>
+          <div class="env-policy">
+            <article class="choice">
+              <h3>Code: reversible</h3>
+              <p>Dev follows every green build; prod moves by pull request, and back to any earlier version the same way. See <a href="../gitops-delivery/">GitOps delivery</a>.</p>
+            </article>
+            <article class="choice">
+              <h3>Schema: forward only</h3>
+              <p>Applied when someone chooses to, through its own pull request. A mistake is fixed by the next migration, never by undoing one.</p>
+            </article>
+          </div>
+          <ul class="points">
+            <li><strong>Code rollbacks are always safe.</strong> Rolling back never touches the database, and since changes go in additive first, the previous version runs against the newer schema.</li>
+            <li><strong>Expand, then contract.</strong> Additive changes can land before the code that uses them; destructive ones wait until no running version needs what they remove. It's the standard way to change a schema without downtime, and here it's simply how releases work.</li>
+            <li><strong>The riskiest change gets its own review.</strong> A schema change has its own pull request, its own status and its own failure, instead of riding along inside a deploy.</li>
+            <li><strong>Migrations run once, outside the service.</strong> Atlas applies each one, so replicas never race to migrate on startup and the service needs no migration logic.</li>
+          </ul>
+          <div class="choices">
+            <article class="choice">
+              <h3>The cost: deploying code and schema together</h3>
+              <p>Nothing orders a schema apply and a code deploy merged at the same moment. New pods can start before the migration lands and fail the queries that need it, until Atlas finishes. Old pods are unaffected: rollouts never drop below capacity and changes are additive. Today the rule is apply the schema, wait for Applied, then deploy, and the portal warns when the code running in an environment ships a migration its database doesn't have. In dev, auto-deploy can ship such code on its own.</p>
+              <p class="action">The fix: <strong>schema-aware readiness</strong> <span class="tag-inline">coming</span></p>
+            </article>
+          </div>
+        </section>
+
+        <section id="shape">
+          <h2>The shape</h2>
+          <figure class="diagram">
+            <div class="diagram-scroll">
+              <svg viewBox="0 0 1000 540" role="img" aria-labelledby="ds-t">
+                <title id="ds-t">Package row: migrations in the service repository are checked by the schema workflow, which replays them on Postgres 16 and publishes a schema package per commit to GHCR. Release row: Backstage's Apply database schema opens a pull request with a DatabaseSchema; schema-operator on the management cluster checks the package exists and commits a pointer file to application-repositories. Apply row: Argo CD deploys the package to the workload cluster as an ExternalSecret, a ConfigMap and an AtlasMigration; Atlas Operator checks them on a throwaway Postgres and applies the new ones to the database.</title>
+                <defs>
+                  <marker id="s-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#5d6680"/></marker>
+                  <marker id="s-arrow-hi" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#4fa6e6"/></marker>
+                </defs>
+
+                <text class="v-label" x="20" y="40">PACKAGE · every commit that changes migrations/</text>
+                <text class="v-label" x="20" y="222">RELEASE · per environment, by pull request</text>
+                <text class="v-label" x="20" y="404">APPLY · in the workload cluster</text>
+
+                <!-- Package row -->
+                <rect class="v-node" x="20" y="56" width="210" height="84" rx="12"/>
+                <text class="v-t" x="125" y="86" text-anchor="middle">Service repository</text>
+                <text class="v-s mono-s" x="125" y="108" text-anchor="middle">migrations/*.sql</text>
+                <text class="v-s mono-s" x="125" y="126" text-anchor="middle">atlas.sum</text>
+                <rect class="v-node" x="270" y="56" width="210" height="84" rx="12"/>
+                <text class="v-t" x="375" y="86" text-anchor="middle">Schema workflow</text>
+                <text class="v-s" x="375" y="108" text-anchor="middle">atlas.sum up to date</text>
+                <text class="v-s" x="375" y="126" text-anchor="middle">replayed on Postgres 16</text>
+                <rect class="v-node-hi" x="520" y="56" width="230" height="84" rx="12"/>
+                <text class="v-t" x="635" y="86" text-anchor="middle">Schema package</text>
+                <text class="v-s mono-s" x="635" y="108" text-anchor="middle">ghcr.io/…/payments/schema</text>
+                <text class="v-s mono-s" x="635" y="126" text-anchor="middle">0.0.0-g&lt;commit&gt;</text>
+                <path class="v-edge" d="M232,98 H268" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M482,98 H518" marker-end="url(#s-arrow)"/>
+
+                <!-- Release row -->
+                <rect class="v-node" x="20" y="238" width="210" height="84" rx="12"/>
+                <text class="v-t" x="125" y="268" text-anchor="middle">Backstage</text>
+                <text class="v-s" x="125" y="290" text-anchor="middle">Apply database schema</text>
+                <text class="v-s" x="125" y="308" text-anchor="middle">opens a pull request</text>
+                <rect class="v-node" x="270" y="238" width="210" height="84" rx="12"/>
+                <text class="v-t" x="375" y="268" text-anchor="middle">DatabaseSchema</text>
+                <text class="v-s" x="375" y="290" text-anchor="middle">componentRef · version</text>
+                <text class="v-s" x="375" y="308" text-anchor="middle">on the management cluster</text>
+                <rect class="v-node" x="520" y="238" width="230" height="84" rx="12"/>
+                <text class="v-t" x="635" y="268" text-anchor="middle">schema-operator</text>
+                <text class="v-s" x="635" y="290" text-anchor="middle">finds the package, the database</text>
+                <text class="v-s" x="635" y="308" text-anchor="middle">and its published location</text>
+                <rect class="v-node" x="790" y="238" width="190" height="84" rx="12"/>
+                <text class="v-t" x="885" y="268" text-anchor="middle">Pointer file</text>
+                <text class="v-s mono-s" x="885" y="290" text-anchor="middle">components/payments/</text>
+                <text class="v-s mono-s" x="885" y="308" text-anchor="middle">schema/dev.yaml</text>
+                <path class="v-edge" d="M232,280 H268" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M482,280 H518" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M752,280 H788" marker-end="url(#s-arrow)"/>
+                <path class="v-edge o-dashed-edge" d="M635,236 V142" marker-end="url(#s-arrow)"/>
+                <text class="v-label" x="690" y="196" text-anchor="middle">exists?</text>
+
+                <!-- Apply row -->
+                <rect class="v-node" x="20" y="420" width="210" height="84" rx="12"/>
+                <text class="v-t" x="125" y="450" text-anchor="middle">Argo CD</text>
+                <text class="v-s" x="125" y="472" text-anchor="middle">one Application per</text>
+                <text class="v-s" x="125" y="490" text-anchor="middle">service and environment</text>
+                <rect class="v-node" x="270" y="420" width="210" height="84" rx="12"/>
+                <text class="v-t" x="375" y="450" text-anchor="middle">The package, deployed</text>
+                <text class="v-s" x="375" y="472" text-anchor="middle">ExternalSecret · ConfigMap</text>
+                <text class="v-s" x="375" y="490" text-anchor="middle">AtlasMigration</text>
+                <rect class="v-node" x="520" y="420" width="230" height="84" rx="12"/>
+                <text class="v-t" x="635" y="450" text-anchor="middle">Atlas Operator</text>
+                <text class="v-s" x="635" y="472" text-anchor="middle">checks on a throwaway Postgres,</text>
+                <text class="v-s" x="635" y="490" text-anchor="middle">then applies only the new files</text>
+                <rect class="v-node" x="790" y="420" width="190" height="84" rx="12"/>
+                <text class="v-t" x="885" y="450" text-anchor="middle">Database</text>
+                <text class="v-s" x="885" y="472" text-anchor="middle">records every</text>
+                <text class="v-s" x="885" y="490" text-anchor="middle">applied version</text>
+                <path class="v-edge" d="M232,462 H268" marker-end="url(#s-arrow)"/>
+                <path class="v-edge" d="M482,462 H518" marker-end="url(#s-arrow)"/>
+                <path class="v-edge-hi o-hi" d="M752,462 H788" marker-end="url(#s-arrow-hi)"/>
+
+                <!-- Pointer file to Argo CD -->
+                <path class="v-edge" d="M885,324 C885,372 205,372 205,418" marker-end="url(#s-arrow)"/>
+                <text class="v-label" x="505" y="390" text-anchor="middle">Argo CD reads the pointer and pulls the package</text>
+              </svg>
+            </div>
+            <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>The highlighted arrow is the only way a change reaches the database. The dashed arrow is a check: nothing is written until the package exists.</figcaption>
+          </figure>
+        </section>
+
+        <section id="how">
+          <h2>How it works</h2>
+          <ol class="flow">
+            <li>
+              <h3>Migrations live with the service</h3>
+              <p>Hand-written SQL files in the repository's <code>migrations/</code>, with an <code>atlas.sum</code> that fixes their content and order. Services scaffolded from <code>golang-service</code> 0.13.0 onwards start with this in place. See <a href="../scaffolding/">Golden-path scaffolding</a>.</p>
+            </li>
+            <li>
+              <h3>Every change is checked, then packaged</h3>
+              <p>The schema workflow runs only when <code>migrations/</code> changes. On a pull request and on <code>main</code> it fails if <code>atlas.sum</code> is stale and replays every migration, in order, on an empty Postgres 16. On <code>main</code> it then publishes the platform's schema chart with those migrations inside, versioned by the commit, next to the service's image. Every green run is a version that can be applied.</p>
+            </li>
+            <li>
+              <h3>Applying is a pull request</h3>
+              <p>Backstage's Apply database schema form takes a service, an environment and a version. It shows the migration files that version adds; the version already requested and older ones can't be picked. Its pull request adds one small file.</p>
+<pre><code>kind: DatabaseSchema
+metadata: {name: payments, namespace: dev}
+spec:
+  componentRef: {name: payments}
+  version: "54f3f80…"   # the commit whose migrations/ to apply</code></pre>
+            </li>
+            <li>
+              <h3>schema-operator writes a pointer</h3>
+              <p>On the management cluster it finds the service's repository through its <code>Component</code>, the environment's database and where that database published its connection details, and checks that the package exists. Then it commits a small file to <code>application-repositories</code>: which package, which version, which location. It never touches a workload cluster.</p>
+            </li>
+            <li>
+              <h3>Atlas applies it, inside the cluster</h3>
+              <p>An Argo CD ApplicationSet turns each pointer into one Application, which deploys the package to the service's namespace: an <code>ExternalSecret</code> for the database's connection details, a <code>ConfigMap</code> with the migrations and an <code>AtlasMigration</code>, in that order. Atlas Operator checks the migrations on a throwaway Postgres, applies only the files the database hasn't run, and records them there. Argo CD reports the Application Healthy only once Atlas reports Applied, and Degraded if a migration fails.</p>
+            </li>
+            <li>
+              <h3>The portal shows where each database stands</h3>
+              <p>A database's page lists every check a version passes (packaged, requested, applied, the newest one, matching the code) with the states each can be in, and offers the Apply action to the owner. The deployment card warns when the code running in an environment ships a migration its database doesn't have. See <a href="../developer-experience/">Developer experience</a>.</p>
+            </li>
+          </ol>
+        </section>
+
+        <section id="choices">
+          <h2>Design choices</h2>
+          <div class="choices">
+            <article class="choice">
+              <h3>Versioned SQL, not a desired state</h3>
+              <p>Reviewers see exactly the statements that will run, in order, rather than a target schema and a diff computed later.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> migrations are written by hand; nothing generates them from a schema definition yet.</p>
+            </article>
+            <article class="choice">
+              <h3>Forward only</h3>
+              <p>There are no down migrations. Atlas refuses to migrate a database backwards, and the portal only offers newer versions. A bad migration is fixed by the next one.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> undoing a change means writing its inverse as a new migration.</p>
+            </article>
+            <article class="choice">
+              <h3>A package per commit, a pointer in Git</h3>
+              <p>The SQL stays in the service's repository and its immutable package. Git records which version should run where, and the location of the credentials, never the credentials themselves.</p>
+            </article>
+            <article class="choice">
+              <h3>One platform chart</h3>
+              <p>A service owns only its <code>migrations/</code>. How they're applied (the Secret, the ConfigMap, the AtlasMigration) is a versioned platform chart that CI packs around them.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> the chart version is pinned in each service's workflow, so a newer chart reaches a service when that pin is bumped.</p>
+            </article>
+            <article class="choice">
+              <h3>Independent of the binding</h3>
+              <p>The schema reads the database's published location itself, the way a binding does, without needing one. A schema can be applied before any service binds the database. See <a href="../service-bindings/">Service bindings</a>.</p>
+            </article>
+            <article class="choice">
+              <h3>Its own Application</h3>
+              <p>Each service's schema has its own Argo CD Application next to the service's, so the two sync, fail and roll back independently, and a failed migration shows on its own.</p>
+            </article>
+            <article class="choice">
+              <h3>Checked twice before it counts</h3>
+              <p>CI replays every migration on an empty Postgres before publishing; Atlas checks them again on a throwaway one before touching the real database. A broken file fails twice before it can fail there.</p>
+              <p class="tradeoff"><strong>Trade-off:</strong> the throwaway database is pinned to Postgres 16 to match the platform's databases, by hand.</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="not-yet">
+          <h2>Not built yet</h2>
+          <ul class="not-yet">
+            <li><strong>Schema-aware readiness</strong> <span class="tag-inline">coming</span>. The service will know the newest migration it ships with and stay not-ready until its database has it. A rollout then waits for the schema while the old pods keep serving, so code and schema can be merged together in any order, and a rollback always passes.</li>
+            <li><strong>Following main in dev.</strong> Applying each new schema version automatically, the way auto-deploy follows each green build, so dev needs no manual apply once readiness gates the rollout.</li>
+            <li><strong>Destructive-change checks.</strong> CI proves migrations apply; nothing flags a dropped column or table yet, so contract steps rely on review.</li>
+            <li><strong>Engine version from the database.</strong> The throwaway Postgres version is set by hand rather than read from the database it stands in for.</li>
+            <li><strong>A separate migration user.</strong> Migrations and the service use the same database credentials today.</li>
+          </ul>
+        </section>
+
+        <section id="code">
+          <h2>Code</h2>
+          <div class="repos repos-compact">
+            <a class="repo" href="https://github.com/entr0pian/schema-operator"><h3>schema-operator</h3><p>The <code>DatabaseSchema</code> API and its controller.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/platform-scaffolds"><h3>platform-scaffolds</h3><p>The <code>migrations/</code> layout and the schema workflow.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/helm-charts"><h3>helm-charts</h3><p>The platform's schema chart.</p></a>
+            <a class="repo" href="https://github.com/entr0pian/backstage"><h3>backstage</h3><p>The Apply database schema form and the database's checks.</p></a>
+          </div>
+        </section>
+
+        <nav class="pager" aria-label="Architecture areas">
+          <a href="../service-bindings/"><span>Previous</span>Service bindings</a>
+          <a class="next" href="../gitops-delivery/"><span>Next</span>GitOps delivery</a>
+        </nav>
+      </article>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

@@ -48,6 +48,7 @@ isn't built yet, and the repositories involved. In reading order:
 | `scaffolding` | Versioned service templates and what every service gets by default |
 | `platform-api` | `Component` as identity, `componentRef`, the operators |
 | `service-bindings` | Database → Secrets Manager → `Release` → mounted files |
+| `database-schemas` | Why schemas have their own forward-only lifecycle; migration package → `DatabaseSchema` → Atlas |
 | `gitops-delivery` | `application-repositories` directories and their ApplicationSets |
 | `hub-and-spoke` | The management cluster and how it reaches dev and prod |
 | `observability` | Labels, recording rules, remote write to Mimir |
