@@ -36,7 +36,7 @@
       <li><strong>2</strong><span>lifecycles: code moves both ways, the schema only forward</span></li>
       <li><strong>1</strong><span>pull request applies a schema version to an environment</span></li>
       <li><strong>2</strong><span>checks on a throwaway Postgres before a migration reaches the database</span></li>
-      <li><strong>0</strong><span>credentials or SQL in Git: only a package version and a location</span></li>
+      <li><strong>0</strong><span>credentials or SQL in the GitOps repository: only a package version and a location</span></li>
     </ul>
 
     <div class="doc-layout">
@@ -212,8 +212,8 @@ spec:
               <p class="tradeoff"><strong>Trade-off:</strong> undoing a change means writing its inverse as a new migration.</p>
             </article>
             <article class="choice">
-              <h3>A package per commit, a pointer in Git</h3>
-              <p>The SQL stays in the service's repository and its immutable package. Git records which version should run where, and the location of the credentials, never the credentials themselves.</p>
+              <h3>A package per commit, a pointer in GitOps</h3>
+              <p>The SQL stays in the service's repository and its immutable package. The GitOps repository records which version should run where, and the location of the credentials, never the credentials themselves.</p>
             </article>
             <article class="choice">
               <h3>One platform chart</h3>
