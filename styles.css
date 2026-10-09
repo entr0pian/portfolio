@@ -121,7 +121,8 @@ p { margin: 0; }
   .live:has(:focus-visible) .tip, .live.pinned .tip { display: block; translate: none; }
 }
 .byline { margin-top: 26px; color: var(--muted); font-size: 0.93rem; }
-.byline strong { color: var(--text); font-weight: 600; }
+.byline a { color: var(--text); font-weight: 600; text-decoration: underline; text-decoration-color: #4a5168; text-underline-offset: 3px; }
+.byline a:hover { text-decoration-color: currentColor; }
 .tech-row { list-style: none; padding: 0; margin: 14px 0 0; display: flex; flex-wrap: wrap; gap: 6px 0; color: var(--muted); font-size: 0.88rem; }
 .tech-row li { white-space: nowrap; }
 .tech-row li:not(:last-child)::after { content: "·"; margin: 0 10px; color: #4a5168; }
