@@ -11,7 +11,7 @@
   <meta property="og:url" content="https://gerodimos.dev/">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2026-10-09">
 </head>
 <body>
   <header class="site-header">
@@ -39,7 +39,16 @@
     <div class="cta">
       <a class="btn primary" href="#architecture">Explore architecture</a>
       <a class="btn" href="#demo">Watch golden paths</a>
-      <a class="link-cta" href="https://github.com/entr0pian">View source →</a>
+      <span class="live" data-live="unknown">
+        <a class="btn" href="https://platform.gerodimos.dev" aria-describedby="live-tip"><span class="dot" aria-hidden="true"></span>View demo</a>
+        <span class="tip" id="live-tip" role="tooltip">
+          <span data-when="unknown">The live portal: Backstage on EKS, guest sign-in, read-only. It only runs while I'm working on it, so it may be offline.</span>
+          <span data-when="checking">Checking whether the live platform is up…</span>
+          <span data-when="online"><strong>Live now.</strong> The real Backstage portal on running EKS clusters. Sign in as a guest: read-only.</span>
+          <span data-when="offline"><strong>Offline right now.</strong> Its EKS clusters only run while I'm working on the platform, to keep AWS costs down. The golden-path videos show a real run; this turns green by itself when it's back.</span>
+        </span>
+      </span>
+      <a class="link-cta" href="https://github.com/entr0pian">View source on GitHub →</a>
     </div>
     <p class="byline">Designed and built by <strong>Apostolos Gerodimos</strong> · Platform / DevOps Engineer</p>
     <ul class="tech-row" aria-label="Built with"><li>Kubernetes</li><li>Go</li><li>Argo CD</li><li>Backstage</li><li>Crossplane</li><li>AWS</li></ul>
@@ -179,7 +188,7 @@
       </ul>
       <p class="note">
         The live portal is at <a href="https://platform.gerodimos.dev">platform.gerodimos.dev</a> (guest sign-in, read-only).
-        Its cluster only runs while I'm working on it, so it may be offline; the demo above shows it end to end.
+        Its clusters only run while I'm working on it, so it may be offline; the golden-path videos above show it end to end.
       </p>
     </section>
   </main>
@@ -195,6 +204,6 @@
     </div>
   </footer>
 
-  <script src="main.js" defer></script>
+  <script src="main.js?v=2026-10-09" defer></script>
 </body>
 </html>
