@@ -52,9 +52,10 @@
       <div class="section-head">
         <p class="eyebrow">Golden paths</p>
         <h2>See the platform in action</h2>
-        <p>The first golden path, <strong>Onboard a Service</strong>: a real run, cut to 97 seconds. The developer fills in one form; everything after it is the platform.</p>
+        <p>Two golden paths, each a real run edited for length. The developer only fills in forms; everything after them is the platform.</p>
       </div>
 
+      <h3 class="path-title" id="demo-service">Onboard a Service <span class="muted">· 97 seconds</span></h3>
       <div class="video" data-video-id="oI3ZWVAUfhw">
         <a class="video-facade" href="https://youtu.be/oI3ZWVAUfhw" aria-label="Play the Onboard a Service demo">
           <img src="assets/onboard-a-service.jpg" alt="Golden Path: Onboard a Service — from developer request to running workload" width="1280" height="720" loading="lazy">
@@ -63,17 +64,26 @@
       </div>
 
       <ol class="steps">
-        <li><span class="n">1</span><div><h3>Define the service</h3><p>Name, owner, scaffold template and version, auto-deploy to dev. That's the whole developer input.</p></div></li>
-        <li><span class="n">2</span><div><h3>The platform takes over</h3><p>Backstage opens a pull request with a <code>Component</code> and its first <code>Release</code>. A human reviews and merges it, like any change.</p></div></li>
-        <li><span class="n">3</span><div><h3>GitOps deploys it</h3><p>Argo CD syncs the merge; Crossplane creates the GitHub repo and its webhook; an operator commits the scaffold; CI builds the image.</p></div></li>
-        <li><span class="n">4</span><div><h3>Healthy and observable</h3><p>The first green build rolls out to dev on its own. Rollout state, metrics and a public HTTPS endpoint appear in the portal.</p></div></li>
+        <li><span class="n">1</span><div><h4>Define the service</h4><p>Name, owner, scaffold template and version, auto-deploy to dev. That's the whole developer input.</p></div></li>
+        <li><span class="n">2</span><div><h4>The platform takes over</h4><p>Backstage opens a pull request with a <code>Component</code> and its first <code>Release</code>. A human reviews and merges it, like any change.</p></div></li>
+        <li><span class="n">3</span><div><h4>GitOps deploys it</h4><p>Argo CD syncs the merge; Crossplane creates the GitHub repo and its webhook; an operator commits the scaffold; CI builds the image.</p></div></li>
+        <li><span class="n">4</span><div><h4>Healthy and observable</h4><p>The first green build rolls out to dev on its own. Rollout state, metrics and a public HTTPS endpoint appear in the portal.</p></div></li>
       </ol>
 
-      <div class="more-paths">
-        <div class="path-card"><h3>Add a database</h3><p>A Crossplane-provisioned Postgres for an existing service, with credentials delivered through Secrets Manager.</p><span class="tag">Demo coming soon</span></div>
-        <div class="path-card"><h3>Apply a database schema</h3><p>Pick a published migration version; it reaches the database through its own pull request, separately from the code.</p><span class="tag">Demo coming soon</span></div>
-        <div class="path-card"><h3>Deploy a version</h3><p>Pick an environment and a built version; Backstage opens the <code>Release</code> pull request and Argo CD rolls it out.</p><span class="tag">Demo coming soon</span></div>
+      <h3 class="path-title" id="demo-database">Onboard a Database <span class="muted">· 3 minutes</span></h3>
+      <div class="video" data-video-id="qae-XF0U0n8">
+        <a class="video-facade" href="https://youtu.be/qae-XF0U0n8" aria-label="Play the Onboard a Database demo">
+          <img src="assets/onboard-a-database.jpg" alt="Golden Path: Onboard a Database — provision Postgres, apply its schema, bind it to a service" width="1280" height="720" loading="lazy">
+          <span class="play" aria-hidden="true"></span>
+        </a>
       </div>
+
+      <ol class="steps">
+        <li><span class="n">1</span><div><h4>Request a database</h4><p>Pick the service, the environment and a size. Backstage opens a pull request with one <code>Database</code>.</p></div></li>
+        <li><span class="n">2</span><div><h4>Crossplane provisions it</h4><p>Argo CD syncs the merge; Crossplane creates a real RDS Postgres with its network and password, and publishes the connection details to Secrets Manager.</p></div></li>
+        <li><span class="n">3</span><div><h4>Apply the schema</h4><p>A second pull request adds a <code>DatabaseSchema</code> pointing at a published version. Atlas applies its migrations, forward-only.</p></div></li>
+        <li><span class="n">4</span><div><h4>Bind it to the service</h4><p>A third pull request names the database on the service's <code>Release</code>. The new pods start with its credentials mounted as files.</p></div></li>
+      </ol>
     </section>
 
     <!-- Architecture -->

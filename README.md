@@ -31,10 +31,12 @@ TLS certificate; `.dev` is HSTS-preloaded, so **Enforce HTTPS** must be on.
 | Golden path | YouTube |
 |---|---|
 | Onboard a service | [`oI3ZWVAUfhw`](https://youtu.be/oI3ZWVAUfhw) |
+| Onboard a database (provision, schema, bind) | [`qae-XF0U0n8`](https://youtu.be/qae-XF0U0n8), unlisted |
 
-Built from `portfolio-video/service-onboarding/build.py` in the workspace. A
-re-cut is a new upload with a new ID: update `data-video-id` and the link in
-`index.html`.
+Built from `portfolio-video/<path>/build.py` in the workspace
+(`service-onboarding`, `setup-database`); each video's poster in `assets/` is
+its YouTube thumbnail. A re-cut is a new upload with a new ID: update
+`data-video-id` and the link in `index.html`.
 
 ## Architecture pages
 

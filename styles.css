@@ -38,7 +38,7 @@ code {
   border-radius: 6px;
   padding: 0.05em 0.35em;
 }
-h1, h2, h3 { line-height: 1.2; margin: 0; }
+h1, h2, h3, h4 { line-height: 1.2; margin: 0; }
 p { margin: 0; }
 
 .wrap { width: min(1120px, 100% - 32px); margin-inline: auto; }
@@ -111,6 +111,9 @@ p { margin: 0; }
 .section-head p:not(.eyebrow) { color: var(--muted); margin-top: 12px; }
 
 /* Video */
+.path-title { font-size: 1.2rem; margin: 64px 0 16px; scroll-margin-top: 88px; }
+.path-title:first-of-type { margin-top: 0; }
+.path-title .muted { font-weight: 500; font-size: 0.95rem; }
 .video { position: relative; aspect-ratio: 16 / 9; border-radius: var(--radius); overflow: hidden; border: 1px solid var(--border); background: #000; }
 .video iframe, .video-facade, .video-facade img { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 .video-facade img { object-fit: cover; }
@@ -131,14 +134,8 @@ p { margin: 0; }
   flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center;
   background: var(--grad); color: #0b0d12; font-weight: 700; font-size: 0.9rem;
 }
-.steps h3 { font-size: 1.02rem; margin-bottom: 4px; }
+.steps h4 { font-size: 1.02rem; margin-bottom: 4px; }
 .steps p { color: var(--muted); font-size: 0.93rem; }
-
-.more-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 40px; }
-.path-card { background: var(--surface); border: 1px dashed var(--border); border-radius: var(--radius); padding: 20px 22px; }
-.path-card h3 { font-size: 1.05rem; margin-bottom: 6px; }
-.path-card p { color: var(--muted); font-size: 0.94rem; }
-.tag { display: inline-block; margin-top: 12px; font-size: 0.78rem; color: var(--muted); border: 1px solid var(--border); border-radius: 999px; padding: 2px 10px; }
 
 /* Decisions */
 .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
@@ -171,7 +168,7 @@ p { margin: 0; }
   .site-header nav { gap: 10px; }
   .site-header nav a { font-size: 0.8rem; }
   .brand { font-size: 0.95rem; }
-  .steps, .grid, .repos, .more-paths { grid-template-columns: 1fr; }
+  .steps, .grid, .repos { grid-template-columns: 1fr; }
   .section { padding: 56px 0; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -210,6 +207,8 @@ p { margin: 0; }
 .concept-head { margin: 28px 0 32px; max-width: 68ch; }
 .concept-head h1 { font-size: clamp(2rem, 4vw, 2.8rem); letter-spacing: -0.02em; }
 .concept-head .lede { margin-top: 14px; }
+.concept-head .watch { margin-top: 14px; font-weight: 600; }
+.concept-head .watch a { color: #b9a9ff; }
 .facts { list-style: none; padding: 0; margin: 0 0 48px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .facts li { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
 .facts strong { display: block; font-size: 1.7rem; line-height: 1.1; background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
