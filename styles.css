@@ -200,7 +200,6 @@ p { margin: 0; }
 .repo:hover { text-decoration: none; border-color: #3a4152; background: var(--surface-2); }
 .repo h3 { font-family: var(--mono); font-size: 0.95rem; margin-bottom: 6px; color: #c9bfff; }
 .repo p { color: var(--muted); font-size: 0.9rem; }
-.note { color: var(--muted); font-size: 0.94rem; margin-top: 28px; max-width: 75ch; }
 
 /* Footer */
 .site-footer { border-top: 1px solid var(--border); padding: 28px 0 40px; color: var(--muted); font-size: 0.92rem; }
