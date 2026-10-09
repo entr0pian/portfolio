@@ -11,7 +11,7 @@
   <meta property="og:url" content="https://gerodimos.dev/">
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="styles.css?v=2026-10-09">
+  <link rel="stylesheet" href="styles.css?v=2026-10-09.2">
 </head>
 <body>
   <header class="site-header">
@@ -37,9 +37,15 @@
     <p class="lede">A Kubernetes-native developer platform built around declarative APIs, custom controllers and
       GitOps workflows, turning developer intent into running software and infrastructure.</p>
     <div class="cta">
-      <a class="btn primary" href="#architecture">Explore architecture</a>
-      <a class="btn" href="#demo">Watch golden paths</a>
-      <span class="live" data-live="unknown">
+      <span class="tipped tip-start">
+        <a class="btn primary" href="#architecture" aria-describedby="arch-tip">Explore architecture</a>
+        <span class="tip" id="arch-tip" role="tooltip">How it fits together: one page per area, each with its design choices, trade-offs and what isn't built yet.</span>
+      </span>
+      <span class="tipped tip-start">
+        <a class="btn" href="#demo" aria-describedby="paths-tip">Watch golden paths</a>
+        <span class="tip" id="paths-tip" role="tooltip">Two recorded runs, from the Backstage form to running software: onboard a service (97&nbsp;s) and a database (3&nbsp;min).</span>
+      </span>
+      <span class="tipped live" data-live="unknown">
         <a class="btn" href="https://platform.gerodimos.dev" aria-describedby="live-tip"><span class="dot" aria-hidden="true"></span>View demo</a>
         <span class="tip" id="live-tip" role="tooltip">
           <span data-when="unknown">The live portal: Backstage on EKS, guest sign-in, read-only. It only runs while I'm working on it, so it may be offline.</span>
