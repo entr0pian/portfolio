@@ -6,8 +6,9 @@ architecture write-up: one page per architecture area.
 
 | Path | What |
 |---|---|
-| `index.html` | The front page: hero, golden-path demo, architecture overview, code |
+| `index.html` | The front page: hero, golden-path demos, the platform in three steps, code |
 | `architecture/<area>/index.html` | One page per architecture area, linked from the front page's cards |
+| `architecture/overview/index.html` | The full architecture diagram, linked from the front page |
 | `styles.css` | All styling, shared by every page |
 | `main.js` | Click-to-load YouTube embed (no YouTube requests until play) |
 | `assets/` | Video poster, favicon |
@@ -40,7 +41,7 @@ its YouTube thumbnail. A re-cut is a new upload with a new ID: update
 
 ## Live demo button
 
-The hero's **View demo** button links to the live portal, `platform.gerodimos.dev`,
+The hero's **Live portal** button links to the live portal, `platform.gerodimos.dev`,
 whose clusters only run part of the time. `main.js` checks it from the visitor's
 browser by loading Backstage's `favicon.svg` (cache-busted, 4 s timeout): green if
 the image loads, grey and dashed otherwise. A torn-down cluster (no DNS), one

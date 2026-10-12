@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Full architecture · Apostolos Gerodimos</title>
+  <meta name="description" content="The whole platform on one diagram: from a Backstage request through Git, Argo CD and the operators to the workload clusters and AWS, and back.">
+  <link rel="icon" href="../../assets/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="../../styles.css?v=2026-10-12">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="../../" aria-label="Home">
+        <span class="brand-mark" aria-hidden="true"></span>
+        <span>gerodimos<span class="muted">.dev</span></span>
+      </a>
+      <nav aria-label="Sections">
+        <a href="../../#demo">Golden paths</a>
+        <a href="../../#architecture">Architecture</a>
+        <a href="../../#code">Code</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap concept">
+    <nav class="crumbs" aria-label="Breadcrumb"><a href="../../#architecture">Architecture</a><span aria-hidden="true">/</span><span>Full architecture</span></nav>
+
+    <header class="concept-head">
+      <p class="eyebrow">Architecture</p>
+      <h1>Full architecture</h1>
+      <p class="lede">A developer only ever talks to Backstage. Everything after that is Git, and the automation that reconciles it.</p>
+    </header>
+
+    <figure class="diagram">
+      <div class="diagram-scroll">
+        <img src="../../assets/architecture.svg?v=2026-10-08" width="1200" height="640"
+             alt="Architecture: Developer to Backstage, which opens a pull request on the GitOps config in GitHub. Argo CD on the management cluster applies it: platform intent to the platform APIs and operators, applications to the dev and prod workload clusters. Operators commit deployment state back to Git and scaffold service repositories; Crossplane creates the repositories and provisions RDS and Secrets Manager on AWS. Metrics and deployment status flow back to Backstage.">
+      </div>
+      <figcaption><span class="scroll-hint">Scroll sideways to see all of it. </span>Thick arrows are the main path; dashed arrows are feedback.</figcaption>
+    </figure>
+
+    <ul class="points">
+      <li><strong>Git is the system of record.</strong> Golden paths open pull requests; a person merges them. Platform intent (Component, Release, Database, DatabaseSchema) and deployment state live in one GitOps repository.</li>
+      <li><strong>The management cluster runs only the platform.</strong> Argo CD applies Git to it and reaches out to the workload clusters, which run only services. Nothing in a workload cluster can change the platform.</li>
+      <li><strong>Runtime state flows back.</strong> Rollout status, health and metrics from every environment end up in the same portal the request started from.</li>
+    </ul>
+
+    <nav class="pager" aria-label="Architecture areas">
+      <a href="../../#architecture"><span>Back to</span>Architecture</a>
+      <a class="next" href="../developer-experience/"><span>Start reading</span>Developer experience</a>
+    </nav>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap footer-inner">
+      <p>Apostolos Gerodimos · Platform / DevOps Engineer</p>
+      <nav aria-label="Elsewhere">
+        <a href="https://github.com/entr0pian">GitHub</a>
+        <a href="https://www.youtube.com/@tolisgerodimos7368">YouTube</a>
+      </nav>
+    </div>
+  </footer>
+</body>
+</html>

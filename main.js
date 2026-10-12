@@ -14,7 +14,7 @@ document.querySelectorAll(".video[data-video-id]").forEach((box) => {
   });
 });
 
-// View demo: is the live platform up? Its clusters only run while it's being
+// Live portal: is the live platform up? Its clusters only run while it's being
 // worked on. Online only if Backstage's own icon loads within the timeout: DNS
 // failure (torn down), the load balancer's 503 page (starting up) and a hang all
 // read as offline, so a visitor is never sent to an error page. Without JS the
