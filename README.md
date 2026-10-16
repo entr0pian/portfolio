@@ -6,7 +6,7 @@ architecture write-up: one page per architecture area.
 
 | Path | What |
 |---|---|
-| `index.html` | The front page: hero, golden-path demos, the platform in three steps, code |
+| `index.html` | The front page: hero, golden-path demos, the platform in three steps, code, about me and contact |
 | `architecture/<area>/index.html` | One page per architecture area, linked from the front page's cards |
 | `architecture/overview/index.html` | The full architecture diagram, linked from the front page |
 | `styles.css` | All styling, shared by every page |
